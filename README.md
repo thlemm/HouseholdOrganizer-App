@@ -17,7 +17,14 @@ This app was built with [Nuxt.js](https://v2.nuxt.com/) as a progressive web app
 * Get an overview of stuff you marked to keep for your self
 
 ## Screenshots
+### See details of stuff
 <img src="./assets/catalog.thlemm.de_details.png" alt="" width="300px">
+
+### List your stuff
 <img src="./assets/catalog.thlemm.de_list.png" alt="" width="300px">
+
+### Search for stuff and get it's location
 <img src="./assets/catalog.thlemm.de_search.png" alt="" width="300px">
+
+### Select stuff you want to keep
 <img src="./assets/catalog.thlemm.de_select.png" alt="" width="300px">
