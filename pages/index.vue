@@ -9,7 +9,7 @@
     >
       <v-row>
         <v-col>
-        <home-card />
+          <home-card />
         </v-col>
       </v-row>
       <v-row>

@@ -81,7 +81,7 @@
           outlined
           dense
           label="Raum"
-        ></v-select>
+        />
 
         <v-select
           v-model="input.type"
@@ -90,7 +90,7 @@
           outlined
           dense
           label="Typ"
-        ></v-select>
+        />
 
         <v-combobox
           v-model="input.tags"
@@ -117,7 +117,7 @@
               outlined
               dense
               label="Lagerort"
-            ></v-select>
+            />
           </v-col>
           <v-col
             cols="5"
@@ -129,20 +129,20 @@
               outlined
               dense
               label="Nummer"
-            ></v-text-field>
+            />
           </v-col>
         </v-row>
 
         <label>
           <div>
             <p>
-            <v-icon
-              x-large
-              color="primary"
-            >
-              mdi-plus-box
-            </v-icon>
-            Foto hinzufügen</p>
+              <v-icon
+                x-large
+                color="primary"
+              >
+                mdi-plus-box
+              </v-icon>
+              Foto hinzufügen</p>
           </div>
 
           <input
@@ -153,7 +153,7 @@
             accept="image/*"
             capture="environment"
             @change="onSelectFile"
-          />
+          >
         </label>
 
         <v-img
@@ -162,8 +162,7 @@
           width="50%"
           aspect-ratio="1"
         />
-
-       </v-form>
+      </v-form>
 
       <v-snackbar
         v-model="snackbar"

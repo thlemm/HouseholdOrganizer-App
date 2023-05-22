@@ -1,4 +1,3 @@
-import colors from 'vuetify/es5/util/colors'
 
 export default {
   /*
@@ -67,14 +66,10 @@ export default {
       lang: 'de',
       short_name: 'Katalog 2.0',
       name: 'Libori Katalog 2.0',
-      start_url: "/",
+      start_url: '/',
       display: 'standalone',
       theme_color: '#53abcb'
     }
-    // workbox: {
-    //   globPatterns: ['**/*.{js,css}', '**/static/*'],
-    //   offlinePage: "/offline.html"
-    // }
   },
   /*
   ** vuetify module configuration
@@ -86,26 +81,17 @@ export default {
       dark: false,
       themes: {
         light: {
-          primary:                   '#53abcb',
-          primaryNeutral:            '#6f9eaf',
-          primaryNeutralLight:       '#cedee4',
-          primaryLight:              '#91c4d7',
-          primaryNeutralDark:        '#23373f',
-          complementary:             '#db6b43',
-          complementaryNeutralDark:  '#42281f', 
-          complementaryLight:        '#e19f87',
+          primary: '#53abcb',
+          primaryNeutral: '#6f9eaf',
+          primaryNeutralLight: '#cedee4',
+          primaryLight: '#91c4d7',
+          primaryNeutralDark: '#23373f',
+          complementary: '#db6b43',
+          complementaryNeutralDark: '#42281f',
+          complementaryLight: '#e19f87',
           complementaryNeutralLight: '#e7d2cb',
-          complementaryNeutral:      '#b87c66',
+          complementaryNeutral: '#b87c66',
           error: '#db6b43'
-        },
-        dark: {
-          primary: colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
-          warning: colors.amber.base,
-          error: colors.deepOrange.accent4,
-          success: colors.green.accent3
         }
       }
     }
@@ -118,7 +104,6 @@ export default {
         },
         endpoints: {
           login: { url: 'http://localhost/api/v1/auth/login', method: 'post', propertyName: 'accessToken' },
-          // login: { url: 'https://catalog.thlemm.de/api/v1/auth/login', method: 'post', propertyName: 'accessToken' },
           logout: false,
           user: false
         }
@@ -136,7 +121,8 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    extend(config, {}) {
+    // eslint-disable-next-line no-empty-pattern
+    extend (config, {}) {
       config.node = {
         fs: 'empty'
       }

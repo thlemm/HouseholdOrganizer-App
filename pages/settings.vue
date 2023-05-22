@@ -11,8 +11,8 @@
             </v-icon>
           </v-list-item-action>
           <v-list-item-content>
-              <v-list-item-title>Benutzer</v-list-item-title>
-              <v-list-item-subtitle>ID: {{ user.id }}, Name: {{ user.username }}</v-list-item-subtitle>
+            <v-list-item-title>Benutzer</v-list-item-title>
+            <v-list-item-subtitle>ID: {{ user.id }}, Name: {{ user.username }}</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-divider />
@@ -23,8 +23,8 @@
             </v-icon>
           </v-list-item-action>
           <v-list-item-content>
-              <v-list-item-title>Fehlerberichte</v-list-item-title>
-              <v-list-item-subtitle>Fehlerberichte anzeigen</v-list-item-subtitle>
+            <v-list-item-title>Fehlerberichte</v-list-item-title>
+            <v-list-item-subtitle>Fehlerberichte anzeigen</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </v-col>
@@ -43,8 +43,8 @@
 import inputDialog from '~/components/input-dialog.vue'
 
 export default {
-  components: { inputDialog },
   name: 'Settings',
+  components: { inputDialog },
   layout: 'default',
 
   data () {

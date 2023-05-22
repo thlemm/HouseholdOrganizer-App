@@ -34,7 +34,7 @@
             outlined
             dense
             label="Typ"
-          ></v-select>
+          />
 
           <v-select
             v-model="input.room"
@@ -43,7 +43,7 @@
             outlined
             dense
             label="Raum"
-          ></v-select>
+          />
 
           <v-text-field
             v-model="input.text"
@@ -52,7 +52,6 @@
             outlined
             dense
           />
-
         </v-col>
       </v-row>
       <v-row>
@@ -77,16 +76,16 @@
         <v-lazy
           v-model="thing.isActive"
           :options="{
-              threshold: .5
+            threshold: .5
           }"
           class="fill-height"
           transition="fade-transition"
         >
           <thing-card
-            :thingId="thing.thing_id"
+            :thing-id="thing.thing_id"
             :tags="thing.tags"
             :location="thing.location"
-            :boxId="thing.box_id"
+            :box-id="thing.box_id"
             :room="thing.room"
             :type="thing.type"
             :picture="thing.picture"

@@ -7,48 +7,48 @@
     <v-container
       fluid
     >
-        <v-banner
-          dark
-          class="mb-2"
-          elevation="3"
-          icon="mdi-cloud-outline"
-          color="complementary"
-        >
-          Meine Sachen
-        </v-banner>
+      <v-banner
+        dark
+        class="mb-2"
+        elevation="3"
+        icon="mdi-cloud-outline"
+        color="complementary"
+      >
+        Meine Sachen
+      </v-banner>
 
-        <info-card
-          v-if="things === undefined"
-          title="Nichts gefunden"
-          subtitle="Hier werden die Sachen angezeigt, die mit deinem Account verknüpft sind."
-        />
+      <info-card
+        v-if="things === undefined"
+        title="Nichts gefunden"
+        subtitle="Hier werden die Sachen angezeigt, die mit deinem Account verknüpft sind."
+      />
 
-        <div
-          v-for="(thing, i) in things"
-          :key="i"
-        >
-          <v-sheet min-height="125" class="fill-height" color="transparent">
-            <v-lazy
-              v-model="thing.isActive"
-              :options="{
-                  threshold: .5
-              }"
-              class="fill-height"
-              transition="fade-transition"
-            >
-              <thing-card
-                :thingId="thing.thing_id"
-                :tags="thing.tags"
-                :location="thing.location"
-                :boxId="thing.box_id"
-                :room="thing.room"
-                :type="thing.type"
-                :picture="thing.picture"
-                :user="thing.user"
-              />
-            </v-lazy>
-          </v-sheet>
-        </div>
+      <div
+        v-for="(thing, i) in things"
+        :key="i"
+      >
+        <v-sheet min-height="125" class="fill-height" color="transparent">
+          <v-lazy
+            v-model="thing.isActive"
+            :options="{
+              threshold: .5
+            }"
+            class="fill-height"
+            transition="fade-transition"
+          >
+            <thing-card
+              :thing-id="thing.thing_id"
+              :tags="thing.tags"
+              :location="thing.location"
+              :box-id="thing.box_id"
+              :room="thing.room"
+              :type="thing.type"
+              :picture="thing.picture"
+              :user="thing.user"
+            />
+          </v-lazy>
+        </v-sheet>
+      </div>
     </v-container>
   </v-layout>
 </template>

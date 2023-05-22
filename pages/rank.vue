@@ -24,13 +24,13 @@
       />
 
       <rank-card
-        v-for="(thing, i) in thing"
+        v-for="(element, i) in thing"
         :key="i"
-        :thingId="thing.thing_id"
-        :tags="thing.tags"
-        :room="thing.room"
-        :type="thing.type"
-        :picture="thing.picture"
+        :thing-id="element.thing_id"
+        :tags="element.tags"
+        :room="element.room"
+        :type="element.type"
+        :picture="element.picture"
       />
     </v-container>
   </v-layout>

@@ -7,62 +7,62 @@
     <v-container
       fluid
     >
-    <v-row no-gutters>
-      <v-col cols="3">
-        <v-row>
-          <v-col no-gutters>
-            <v-list two-line>
-              <v-header>
-                Lara & Fabian
-              </v-header>
-              <draggable v-model="thingsA" :options="{group:'people'}" style="min-height: 10px">
-                <div
-                  v-for="(thing, i) in thingsA"
-                  :key="i"
-                >
-                  <thing-card-mini
-                    :thingId="thing.thing_id"
-                    :tags="thing.tags"
-                    :location="thing.location"
-                    :boxId="thing.box_id"
-                    :room="thing.room"
-                    :type="thing.type"
-                    :picture="thing.picture"
-                    :user="thing.user"
-                  />
-                </div>
-              </draggable>
-            </v-list>
-          </v-col>
-        </v-row>
-        <v-row justyfy-center>
-          <v-col no-gutters>
-            <v-list two-line>
-              <v-header>
-                Esther
-              </v-header>
-              <draggable v-model="thingsB" :options="{group:'people'}" style="min-height: 10px">
-                <div
-                  v-for="(thing, i) in thingsB"
-                  :key="i"
-                >
-                  <thing-card-mini
-                    :thingId="thing.thing_id"
-                    :tags="thing.tags"
-                    :location="thing.location"
-                    :boxId="thing.box_id"
-                    :room="thing.room"
-                    :type="thing.type"
-                    :picture="thing.picture"
-                    :user="thing.user"
-                  />
-                </div>
-              </draggable>
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-col cols="6">
+      <v-row no-gutters>
+        <v-col cols="3">
+          <v-row>
+            <v-col no-gutters>
+              <v-list two-line>
+                <v-header>
+                  Lara & Fabian
+                </v-header>
+                <draggable v-model="thingsA" :options="{group:'people'}" style="min-height: 10px">
+                  <div
+                    v-for="(thing, i) in thingsA"
+                    :key="i"
+                  >
+                    <thing-card-mini
+                      :thing-id="thing.thing_id"
+                      :tags="thing.tags"
+                      :location="thing.location"
+                      :box-id="thing.box_id"
+                      :room="thing.room"
+                      :type="thing.type"
+                      :picture="thing.picture"
+                      :user="thing.user"
+                    />
+                  </div>
+                </draggable>
+              </v-list>
+            </v-col>
+          </v-row>
+          <v-row justyfy-center>
+            <v-col no-gutters>
+              <v-list two-line>
+                <v-header>
+                  Esther
+                </v-header>
+                <draggable v-model="thingsB" :options="{group:'people'}" style="min-height: 10px">
+                  <div
+                    v-for="(thing, i) in thingsB"
+                    :key="i"
+                  >
+                    <thing-card-mini
+                      :thing-id="thing.thing_id"
+                      :tags="thing.tags"
+                      :location="thing.location"
+                      :box-id="thing.box_id"
+                      :room="thing.room"
+                      :type="thing.type"
+                      :picture="thing.picture"
+                      :user="thing.user"
+                    />
+                  </div>
+                </draggable>
+              </v-list>
+            </v-col>
+          </v-row>
+        </v-col>
+        <v-col cols="6">
           <v-list two-line>
             <v-header>
               Sachen
@@ -73,11 +73,11 @@
                 :key="i"
               >
                 <thing-card-compact
-                  v-if="thing.user == 'Fabian,'"
-                  :thingId="thing.thing_id"
+                  v-if="thing.user === 'Fabian,'"
+                  :thing-id="thing.thing_id"
                   :tags="thing.tags"
                   :location="thing.location"
-                  :boxId="thing.box_id"
+                  :box-id="thing.box_id"
                   :room="thing.room"
                   :type="thing.type"
                   :picture="thing.picture"
@@ -86,71 +86,71 @@
               </div>
             </draggable>
           </v-list>
-      </v-col>
-      <v-col cols="3">
-        <v-row>
-          <v-col no-gutters>
-            <v-list two-line>
-              <v-header>
-                Thomas
-              </v-header>
-              <draggable v-model="thingsC" :options="{group:'people'}" style="min-height: 10px">
-                <div
-                  v-for="(thing, i) in thingsC"
-                  :key="i"
-                >
-                  <thing-card-mini
-                    :thingId="thing.thing_id"
-                    :tags="thing.tags"
-                    :location="thing.location"
-                    :boxId="thing.box_id"
-                    :room="thing.room"
-                    :type="thing.type"
-                    :picture="thing.picture"
-                    :user="thing.user"
-                  />
-                </div>
-              </draggable>
-            </v-list>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col no-gutters>
-            <v-list two-line>
-              <v-header>
-                ---
-              </v-header>
-              <draggable v-model="thingsD" :options="{group:'people'}" style="min-height: 10px">
-                <div
-                  v-for="(thing, i) in thingsD"
-                  :key="i"
-                >
-                  <thing-card-mini
-                    :thingId="thing.thing_id"
-                    :tags="thing.tags"
-                    :location="thing.location"
-                    :boxId="thing.box_id"
-                    :room="thing.room"
-                    :type="thing.type"
-                    :picture="thing.picture"
-                    :user="thing.user"
-                  />
-                </div>
-              </draggable>
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-    <v-btn
-      @click="generateSQL"
-    >
-      Generate
-    </v-btn>
-    <br></br>
-    <span>
-      {{ queries }}
-    </span>
+        </v-col>
+        <v-col cols="3">
+          <v-row>
+            <v-col no-gutters>
+              <v-list two-line>
+                <v-header>
+                  Thomas
+                </v-header>
+                <draggable v-model="thingsC" :options="{group:'people'}" style="min-height: 10px">
+                  <div
+                    v-for="(thing, i) in thingsC"
+                    :key="i"
+                  >
+                    <thing-card-mini
+                      :thing-id="thing.thing_id"
+                      :tags="thing.tags"
+                      :location="thing.location"
+                      :box-id="thing.box_id"
+                      :room="thing.room"
+                      :type="thing.type"
+                      :picture="thing.picture"
+                      :user="thing.user"
+                    />
+                  </div>
+                </draggable>
+              </v-list>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col no-gutters>
+              <v-list two-line>
+                <v-header>
+                  ---
+                </v-header>
+                <draggable v-model="thingsD" :options="{group:'people'}" style="min-height: 10px">
+                  <div
+                    v-for="(thing, i) in thingsD"
+                    :key="i"
+                  >
+                    <thing-card-mini
+                      :thing-id="thing.thing_id"
+                      :tags="thing.tags"
+                      :location="thing.location"
+                      :box-id="thing.box_id"
+                      :room="thing.room"
+                      :type="thing.type"
+                      :picture="thing.picture"
+                      :user="thing.user"
+                    />
+                  </div>
+                </draggable>
+              </v-list>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+      <v-btn
+        @click="generateSQL"
+      >
+        Generate
+      </v-btn>
+      <br></br>
+      <span>
+        {{ queries }}
+      </span>
     </v-container>
   </v-layout>
 </template>
@@ -178,6 +178,11 @@ export default {
       queries: ''
     }
   },
+  watch: {
+    thingsA () {
+      console.log(this.thingsA)
+    }
+  },
   beforeMount () {
     this.checkLogin()
     if (!this.$auth.loggedIn) {
@@ -186,11 +191,6 @@ export default {
     // this.user = this.$auth.user
     // console.log(this.$auth)
     this.getData()
-  },
-  watch: {
-    thingsA () {
-      console.log(this.thingsA)
-    }
   },
   methods: {
     checkLogin () {

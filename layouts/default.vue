@@ -89,7 +89,7 @@
           </v-list-item-content>
         </v-list-item>
 
-<!--         <v-divider v-if="this.$auth.user.username === 'Thomas'" inset />
+        <!--         <v-divider v-if="this.$auth.user.username === 'Thomas'" inset />
         <v-list-item
           v-if="this.$auth.user.username === 'Thomas'"
           link
@@ -106,33 +106,33 @@
 
         <v-divider inset />
         <client-only>
-        <v-list-item
-          v-if="this.$auth.loggedIn"
-          link
-          to="/logout"
-          nuxt
-        >
-          <v-list-item-action>
-            <v-icon>mdi-logout</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Abmelden</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+          <v-list-item
+            v-if="this.$auth.loggedIn"
+            link
+            to="/logout"
+            nuxt
+          >
+            <v-list-item-action>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Abmelden</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
 
-        <v-list-item
-          v-if="!this.$auth.loggedIn"
-          link
-          to="/login"
-          nuxt
-        >
-          <v-list-item-action>
-            <v-icon>mdi-login</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Anmelden</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+          <v-list-item
+            v-if="!this.$auth.loggedIn"
+            link
+            to="/login"
+            nuxt
+          >
+            <v-list-item-action>
+              <v-icon>mdi-login</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Anmelden</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </client-only>
         <v-list-item
           link

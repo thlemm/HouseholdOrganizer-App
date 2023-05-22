@@ -12,9 +12,9 @@
       Kiste Durchleuchten
     </v-banner>
     <info-card
-        title="Nummer eingeben"
-        subtitle="Hier kann die Nummer der Kiste oder des Regals eingegeben werden, dass gescannt werden soll."
-      />
+      title="Nummer eingeben"
+      subtitle="Hier kann die Nummer der Kiste oder des Regals eingegeben werden, dass gescannt werden soll."
+    />
 
     <br>
     <v-form v-model="isFormValid">
@@ -35,13 +35,13 @@
             cols="5"
           >
             <v-text-field
-                v-model="input.box_id"
-                :rules="[rules.required, rules.location]"
-                type="number"
-                outlined
-                dense
-                label="Nummer"
-              ></v-text-field>
+              v-model="input.box_id"
+              :rules="[rules.required, rules.location]"
+              type="number"
+              outlined
+              dense
+              label="Nummer"
+            />
           </v-col>
         </v-col>
       </v-row>
@@ -68,16 +68,16 @@
         <v-lazy
           v-model="thing.isActive"
           :options="{
-              threshold: .5
+            threshold: .5
           }"
           class="fill-height"
           transition="fade-transition"
         >
           <thing-card
-            :thingId="thing.thing_id"
+            :thing-id="thing.thing_id"
             :tags="thing.tags"
             :location="thing.location"
-            :boxId="thing.box_id"
+            :box-id="thing.box_id"
             :room="thing.room"
             :type="thing.type"
             :picture="thing.picture"
