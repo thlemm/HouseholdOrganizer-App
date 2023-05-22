@@ -2,7 +2,6 @@
 import axios from 'axios'
 
 const API_URL = 'http://localhost/api/v1/'
-// const API_URL = 'https://catalog.thlemm.de/api/v1/'
 
 
 const plainAxiosInstance = axios.create({
