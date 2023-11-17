@@ -7,7 +7,7 @@
       class="mb-2"
       elevation="3"
       icon="mdi-cube-scan"
-      color="complementary"
+      color="secondary"
     >
       Kiste Durchleuchten
     </v-banner>
@@ -35,7 +35,7 @@
             cols="5"
           >
             <v-text-field
-              v-model="input.box_id"
+              v-model="input.location"
               :rules="[rules.required, rules.location]"
               type="number"
               outlined
@@ -61,27 +61,19 @@
     <v-divider class="mt-3 mb-3" />
 
     <div
-      v-for="(thing, i) in things"
-      :key="i"
+      v-for="item in items"
+      :key="item.id"
     >
       <v-sheet class="fill-height" color="transparent">
         <v-lazy
-          v-model="thing.isActive"
           :options="{
             threshold: .5
           }"
           class="fill-height"
           transition="fade-transition"
         >
-          <thing-card
-            :thing-id="thing.thing_id"
-            :tags="thing.tags"
-            :location="thing.location"
-            :box-id="thing.box_id"
-            :room="thing.room"
-            :type="thing.type"
-            :picture="thing.picture"
-            :user="thing.user"
+          <item-card
+            :item="item"
           />
         </v-lazy>
       </v-sheet>
@@ -92,7 +84,7 @@
 <script>
 
 export default {
-  name: 'Search',
+  name: 'Scan',
   layout: 'default',
 
   data () {
@@ -102,7 +94,7 @@ export default {
       loader: null,
       loading: false,
       input: {
-        box_id: null
+        location: null
       },
       isFormValid: false,
       rules: {
@@ -112,7 +104,7 @@ export default {
           return pattern.test(value) || 'Zahl eingeben.'
         }
       },
-      things: null
+      items: []
     }
   },
   watch: {
@@ -134,28 +126,26 @@ export default {
         const response = await this.getRequest()
         if (response) {
           this.loading = false
-          this.things = response
+          this.items = response
         } else {
-          this.things = null
+          this.items = []
         }
       }
     },
     getRequest () {
-      const url = '/thing/scan/' + this.input.box_id
+      const url = '/api/v2/items/location/' + this.input.location
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
       return new Promise(function (resolve, reject) {
-        window.$nuxt.$http.plain.get(url, config)
+        _this.$axios.get(url, config)
           .then((response) => {
             if (response.status === 200) {
-              resolve(response.data.data)
+              resolve(response.data)
             } else {
               reject(Error('An error occured.'))
             }
           })
           .catch((err) => {
-            console.log(JSON.stringify(err))
-            const reports = window.localStorage.getItem('error-reports')
-            window.localStorage.setItem('error-reports', JSON.stringify(err) + ';' + reports)
             if (err.message === 'Network Error') {
               console.log('Server nicht erreichbar.')
             } else {

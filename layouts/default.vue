@@ -1,6 +1,6 @@
 <template>
   <v-app
-    id="inspire"
+    id="household"
   >
     <v-navigation-drawer
       v-model="drawer"
@@ -13,8 +13,8 @@
           </v-list-item-avatar>
 
           <v-list-item-content>
-            <v-list-item-title>Libori Katalog</v-list-item-title>
-            <v-list-item-subtitle>Sachen und so</v-list-item-subtitle>
+            <v-list-item-title>HouseholdOrganizer</v-list-item-title>
+            <v-list-item-subtitle>by thlemm</v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -37,7 +37,7 @@
 
         <v-list-item
           link
-          to="/mystuff"
+          to="/myitems"
           nuxt
         >
           <v-list-item-action>
@@ -107,7 +107,7 @@
         <v-divider inset />
         <client-only>
           <v-list-item
-            v-if="this.$auth.loggedIn"
+            v-if="$auth.loggedIn"
             link
             to="/logout"
             nuxt
@@ -121,7 +121,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="!this.$auth.loggedIn"
+            v-if="!$auth.loggedIn"
             link
             to="/login"
             nuxt
@@ -134,18 +134,6 @@
             </v-list-item-content>
           </v-list-item>
         </client-only>
-        <v-list-item
-          link
-          to="/playground"
-          nuxt
-        >
-          <v-list-item-action>
-            <v-icon>mdi-slide</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Playground</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
 
         <v-divider inset />
 
@@ -159,19 +147,6 @@
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Einstellungen</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item
-          link
-          to="/about"
-          nuxt
-        >
-          <v-list-item-action>
-            <v-icon>mdi-information</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Über</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -202,7 +177,7 @@
       dark
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>Libori Katalog</v-toolbar-title>
+      <v-toolbar-title>HouseholdOrganizer</v-toolbar-title>
     </v-app-bar>
 
     <v-main>
@@ -217,7 +192,7 @@
       color="primary"
       app
     >
-      <span class="white--text">Libori Katalog</span>
+      <span class="white--text">HouseholdOrganizer</span>
     </v-footer>
   </v-app>
 </template>

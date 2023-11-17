@@ -71,7 +71,7 @@
       color="primary"
       app
     >
-      <span class="white--text">Libori Katalog</span>
+      <span class="white--text">HouseholdOrganizer</span>
     </v-footer>
   </v-app>
 </template>

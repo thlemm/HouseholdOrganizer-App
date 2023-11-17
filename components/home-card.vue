@@ -6,15 +6,15 @@
     <v-list-item three-line>
       <v-list-item-content>
         <div class="overline mb-4">
-          Libori Katalog 2.0
+          HouseholdOrganizer 2.0
         </div>
 
         <v-list-item-title class="headline mb-1">
-          Startseite
+          Willkommen
         </v-list-item-title>
 
         <v-list-item-subtitle>
-          Herzlich Willkommen
+          Organisiere deine Sachen!
         </v-list-item-subtitle>
       </v-list-item-content>
 
@@ -28,7 +28,8 @@
     </v-list-item>
 
     <v-card-text>
-      Diese App ersetzt in Zukunft den alten Libori-Katalog.
+      Diese App ersetzt in den alten Libori-Katalog.
+      Die Organisation deiner Sachen wird jetzt noch einfacher.
     </v-card-text>
   </v-card>
 </template>

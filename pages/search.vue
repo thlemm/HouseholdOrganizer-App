@@ -6,8 +6,8 @@
       dark
       class="mb-2"
       elevation="3"
-      icon="mdi-magnify"
-      color="complementary"
+      :icon="mdiMagnify"
+      color="secondary"
     >
       Suchen
     </v-banner>
@@ -30,27 +30,16 @@
           <v-select
             v-model="input.type"
             :items="types"
+            item-text="label"
+            item-value="id"
             clearable
             outlined
             dense
             label="Typ"
           />
 
-          <v-select
-            v-model="input.room"
-            :items="rooms"
-            clearable
-            outlined
-            dense
-            label="Raum"
-          />
-
-          <v-text-field
-            v-model="input.text"
-            label="Schlagwort"
-            clearable
-            outlined
-            dense
+          <input-tags
+            v-model="input.tags"
           />
         </v-col>
       </v-row>
@@ -69,27 +58,19 @@
     <v-divider class="mt-3 mb-3" />
 
     <div
-      v-for="(thing, i) in things"
+      v-for="(item, i) in items"
       :key="i"
     >
       <v-sheet class="fill-height" color="transparent">
         <v-lazy
-          v-model="thing.isActive"
           :options="{
             threshold: .5
           }"
           class="fill-height"
           transition="fade-transition"
         >
-          <thing-card
-            :thing-id="thing.thing_id"
-            :tags="thing.tags"
-            :location="thing.location"
-            :box-id="thing.box_id"
-            :room="thing.room"
-            :type="thing.type"
-            :picture="thing.picture"
-            :user="thing.user"
+          <item-card
+            :item="item"
           />
         </v-lazy>
       </v-sheet>
@@ -98,115 +79,90 @@
 </template>
 
 <script>
-
+import { mdiMagnify } from '@mdi/js'
+import InputTags from '~/components/input/InputTags'
 export default {
   name: 'Search',
+  components: { InputTags },
   layout: 'default',
 
   data () {
     return {
+      mdiMagnify,
       alert: false,
       message: '',
       loader: null,
       loading: false,
-      rooms: ['Esszimmer', 'Wohnzimmer', 'Kueche', 'Hof', 'Arbeitszimmer', 'Schlafzimmer', 'Gruenes Zimmer', 'Lottozimmer', 'Liborizimmer I', 'Liborizimmer II', 'Bad', 'Toilette rosa', 'Toilette beige', 'Topfkammer', 'Diele EG', 'Diele 1. OG', 'Diele 2. OG', 'Zentralkeller', 'Waschkeller', 'Lagerkeller', 'Werkstatt', 'Suedbalkon', 'Nordbalkon'],
-      types: ['Dekoration', 'Technisches Geraet', 'Gebrauchsgegenstand', 'Moebelstueck', 'Einrichtungsgegenstand'],
-      locations: ['Keller', 'Hof', 'Gruenes Zimmer', 'Nach Bild'],
+      types: [
+        { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
+        { id: 2, name: 'TYPE_FURNITURE', label: this.$t('TYPE_FURNITURE') },
+        { id: 3, name: 'TYPE_UTILITY_ITEM', label: this.$t('TYPE_UTILITY_ITEM') },
+        { id: 4, name: 'ROOM_TECHNICAL_DEVICE', label: this.$t('ROOM_TECHNICAL_DEVICE') },
+        { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
+      ],
       input: {
-        room: '',
-        type: '',
-        text: ''
+        type: null,
+        tags: []
       },
       dialog: {
         search: false
       },
-      things: null,
-      isActive: false
+      items: []
     }
   },
 
   beforeMount () {
-    this.checkLogin()
     if (!this.$auth.loggedIn) {
-      window.$nuxt.$router.replace('/login')
+      this.$nuxt.$router.replace('/login')
     }
   },
 
   methods: {
-    checkLogin () {
-      const age = Number(window.localStorage.getItem('token-age'))
-      console.log('age: ' + age)
-      const now = Date.now()
-      console.log('now: ' + now)
-      console.log('now-age: ' + (now - age))
-      if (age < now - 1800000) {
-        console.log('max age expired')
-        window.$nuxt.$router.replace('/login')
-      }
-      console.log(age)
-    },
     createPaylod () {
-      return {
-        type: this.input.type,
-        room: this.input.room,
-        text: this.input.text
+      if (this.input.type === null) {
+        return { tags: this.input.tags }
+      } else {
+        return {
+          type: this.input.type,
+          tags: this.input.tags
+        }
       }
     },
     timeout () {
       if (this.loading) {
-        this.showAlert('Anmeldung fehlgeschlagen.')
+        this.showAlert('Suche fehlgeschlagen.')
       }
-    },
-    checkInput (input) {
-      if (input.room === '' && input.type === '' && input.text === '') {
-        this.message = 'Zu wenig Angaben'
-        this.alert = true
-        return false
-      }
-      return true
     },
     async search () {
       try {
-        if (this.checkInput(this.input)) {
-          this.dialog.search = true
-          this.loading = true
-          const response = await this.postRequest()
-          if (response) {
-            this.loading = false
-            this.things = response.data.data
-          } else {
-            this.things = null
-          }
+        this.dialog.search = true
+        this.loading = true
+        const response = await this.postRequest()
+        if (response) {
+          this.loading = false
+          this.items = response
+        } else {
+          this.items = []
         }
       } catch (err) {
-        if (err.message === 'Request Error') {
-          this.showSnackbar('Request Error')
-        } else if (err.message === 'Network Error') {
-          this.showSnackbar('Network Error')
-        } else if (err.message === 'Unknown Error') {
-          this.showSnackbar('Unknown Error')
-        } else {
-          this.showSnackbar('Unexpected Error')
-        }
+        console.log(err)
       }
     },
     postRequest () {
-      const url = '/thing/search/'
+      const url = '/api/v2/items/search'
       const payload = this.createPaylod()
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
       return new Promise(function (resolve, reject) {
-        window.$nuxt.$http.plain.post(url, payload, config)
+        _this.$axios.post(url, payload, config)
           .then((response) => {
             if (response.status === 200) {
-              resolve(response)
+              resolve(response.data)
             } else {
               resolve(false)
             }
           })
           .catch((err) => {
-            const reports = window.localStorage.getItem('error-reports')
-            window.localStorage.setItem('error-reports', JSON.stringify(err) + ';' + reports)
-            console.log(JSON.stringify(err))
             if (err.message === 'Network Error') {
               return reject(Error('Network Error'))
             } else {

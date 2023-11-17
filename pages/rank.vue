@@ -12,8 +12,8 @@
         dark
         class="mb-2"
         elevation="3"
-        icon="mdi-thumbs-up-down"
-        color="complementary"
+        :icon="mdiThumbsUpDown"
+        color="secondary"
       >
         Neue Sachen bewerten
       </v-banner>
@@ -37,20 +37,20 @@
 </template>
 
 <script>
-
+import { mdiThumbsUpDown } from '@mdi/js'
 export default {
   name: 'Rank',
   layout: 'default',
 
   data () {
     return {
+      mdiThumbsUpDown,
       show: null,
       notification: false,
       thing: undefined
     }
   },
   beforeMount () {
-    this.checkLogin()
     if (!this.$auth.loggedIn) {
       window.$nuxt.$router.replace('/login')
     }
@@ -69,18 +69,6 @@ export default {
     this.$nuxt.$off('reject-thing')
   },
   methods: {
-    checkLogin () {
-      const age = Number(window.localStorage.getItem('token-age'))
-      console.log('age: ' + age)
-      const now = Date.now()
-      console.log('now: ' + now)
-      console.log('now-age: ' + (now - age))
-      if (age < now - 1800000) {
-        console.log('max age expired')
-        window.$nuxt.$router.replace('/login')
-      }
-      console.log(age)
-    },
     async accept () {
       const response = await this.sendRanking(1)
       if (response === 'success') {

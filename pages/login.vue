@@ -132,12 +132,9 @@ export default {
       this.loader = 'loading'
       try {
         const response = await this.$auth.loginWith('local', { data: this.login })
-        console.log(response)
         this.$auth.setUser(response.data)
         this.loading = false
-        console.log(response)
         if (response.status === 200) {
-          window.localStorage.setItem('token-age', Date.now())
           this.dialog = true
         }
       } catch (err) {
