@@ -73,7 +73,7 @@ export default {
       }
     },
     getRequest () {
-      const url = '/api/v2/items'
+      const url = '/api/v2/items/user'
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
       const _this = this
       return new Promise(function (resolve, reject) {
