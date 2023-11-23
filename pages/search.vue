@@ -2,12 +2,19 @@
   <v-container
     fluid
   >
+    <info-snackbar
+      :active="snackbar"
+      @click-action="snackbar = !snackbar"
+    >
+      {{ feedbackMessage }}
+    </info-snackbar>
+
     <v-banner
       dark
       class="mb-2"
       elevation="3"
       :icon="mdiMagnify"
-      color="secondary"
+      color="primary"
     >
       Suchen
     </v-banner>
@@ -16,16 +23,14 @@
     <v-form>
       <v-row>
         <v-col align="center">
-          <v-alert
-            :value="alert"
+          <v-text-field
+            v-model="input.mark"
+            type="number"
             outlined
             dense
-            type="info"
-            text
-            transition="scale-transition"
-          >
-            {{ message }}
-          </v-alert>
+            clearable
+            label="Teilenummer"
+          />
 
           <v-select
             v-model="input.type"
@@ -46,7 +51,7 @@
       <v-row>
         <v-col align="end">
           <v-btn
-            :loading="loading"
+            :disabled="loading"
             color="secondary"
             @click="search"
           >
@@ -55,35 +60,42 @@
         </v-col>
       </v-row>
     </v-form>
-    <v-divider class="mt-3 mb-3" />
-
-    <div
-      v-for="(item, i) in items"
-      :key="i"
-    >
-      <v-sheet class="fill-height" color="transparent">
-        <v-lazy
-          :options="{
-            threshold: .5
-          }"
-          class="fill-height"
-          transition="fade-transition"
-        >
-          <item-card
-            :item="item"
-          />
-        </v-lazy>
-      </v-sheet>
+    <v-divider class="mt-3 mb-0" />
+    <span class="mt-0 pt-0 mb-5 grey--text">{{ items.length }} {{ items.length > 1 ? 'Ergebnisse' : 'Ergebnis' }} gefunden:</span>
+    <loading-animation
+      v-if="loading"
+      color="secondary"
+    />
+    <div v-if="lazy">
+      <v-lazy
+        v-for="(item, i) in items"
+        :key="i"
+        :options="{
+          threshold: .5
+        }"
+        class="fill-height"
+        transition="fade-transition"
+        @input="countLoadingEvents()"
+      >
+        <item-card
+          :item="item"
+          :action-add-interest="true"
+          :filter-interests="false"
+          @reload-data="search"
+        />
+      </v-lazy>
     </div>
   </v-container>
 </template>
 
 <script>
 import { mdiMagnify } from '@mdi/js'
-import InputTags from '~/components/input/InputTags'
+import InputTags from '~/components/input/input-tags'
+import LoadingAnimation from '~/components/feedback/loading-animation'
+import InfoSnackbar from '~/components/feedback/info-snackbar'
 export default {
   name: 'Search',
-  components: { InputTags },
+  components: { InfoSnackbar, LoadingAnimation, InputTags },
   layout: 'default',
 
   data () {
@@ -91,7 +103,6 @@ export default {
       mdiMagnify,
       alert: false,
       message: '',
-      loader: null,
       loading: false,
       types: [
         { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
@@ -101,25 +112,44 @@ export default {
         { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
       ],
       input: {
+        mark: null,
         type: null,
         tags: []
       },
-      dialog: {
-        search: false
-      },
-      items: []
+      items: [],
+      snackbar: false,
+      feedbackMessage: null,
+      eventsCounter: 0,
+      eventLimit: 0,
+      lazy: true
     }
   },
 
   beforeMount () {
     if (!this.$auth.loggedIn) {
-      this.$nuxt.$router.replace('/login')
+      this.$nuxt.$router.replace('/login?target=search')
     }
   },
 
   methods: {
-    createPaylod () {
-      if (this.input.type === null) {
+    countLoadingEvents () {
+      this.eventsCounter += 1
+      if (this.eventsCounter === this.eventLimit) {
+        this.loading = false
+      }
+    },
+    handleError (feedbackMessage) {
+      this.snackbar = true
+      this.feedbackMessage = feedbackMessage
+      this.loading = false
+    },
+    createPayload () {
+      if (this.input.mark) {
+        return {
+          mark: this.input.mark,
+          tags: this.input.tags
+        }
+      } else if (this.input.type === null) {
         return { tags: this.input.tags }
       } else {
         return {
@@ -128,32 +158,27 @@ export default {
         }
       }
     },
-    timeout () {
-      if (this.loading) {
-        this.showAlert('Suche fehlgeschlagen.')
-      }
-    },
     async search () {
-      try {
-        this.dialog.search = true
-        this.loading = true
-        const response = await this.postRequest()
-        if (response) {
-          this.loading = false
-          this.items = response
-        } else {
-          this.items = []
-        }
-      } catch (err) {
-        console.log(err)
+      this.items = []
+      this.lazy = false
+      this.eventsCounter = 0
+      this.loading = true
+      const searchResponse = await this.searchRequest()
+      if (searchResponse) {
+        this.items = searchResponse
+        this.eventLimit = this.items.length
+        this.lazy = true
+      } else {
+        this.items = []
+        this.handleError('Fehler bei Abfrage der Daten')
       }
     },
-    postRequest () {
+    searchRequest () {
       const url = '/api/v2/items/search'
-      const payload = this.createPaylod()
+      const payload = this.createPayload()
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
       const _this = this
-      return new Promise(function (resolve, reject) {
+      return new Promise(function (resolve) {
         _this.$axios.post(url, payload, config)
           .then((response) => {
             if (response.status === 200) {
@@ -164,10 +189,11 @@ export default {
           })
           .catch((err) => {
             if (err.message === 'Network Error') {
-              return reject(Error('Network Error'))
+              _this.handleError('Server nicht erreichbar')
             } else {
-              return reject(Error('Unknown Error'))
+              _this.handleError('Unerwarteter Fehler')
             }
+            resolve(false)
           })
       })
     }

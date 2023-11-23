@@ -186,7 +186,7 @@ export default {
   beforeMount () {
     this.checkLogin()
     if (!this.$auth.loggedIn) {
-      window.$nuxt.$router.replace('/login')
+      this.$nuxt.$router.replace('/login?target=assign')
     }
     // this.user = this.$auth.user
     // console.log(this.$auth)

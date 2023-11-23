@@ -23,7 +23,7 @@
           <v-btn
             color="primary"
             text
-            @click="toHome"
+            @click="toTarget"
           >
             weiter
           </v-btn>
@@ -113,6 +113,9 @@ export default {
       this.loader = null
     }
   },
+  mounted () {
+    console.log(this.$route.query.target)
+  },
   methods: {
     timeout () {
       if (this.loading) {
@@ -124,9 +127,13 @@ export default {
       this.loading = false
       this.alert = true
     },
-    toHome () {
+    toTarget () {
       this.dialog = false
-      window.$nuxt.$router.replace('/')
+      if (this.$route.query.target) {
+        this.$nuxt.$router.replace(this.$route.query.target.toString())
+      } else {
+        this.$nuxt.$router.replace('/')
+      }
     },
     async userLogin () {
       this.loader = 'loading'

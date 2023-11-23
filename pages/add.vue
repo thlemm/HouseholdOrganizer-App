@@ -226,9 +226,9 @@ export default {
   },
 
   beforeMount () {
-    this.checkLogin()
+    this.toHome()
     if (!this.$auth.loggedIn) {
-      window.$nuxt.$router.replace('/login')
+      this.$nuxt.$router.replace('/login?target=add')
     }
   },
 
@@ -254,18 +254,6 @@ export default {
   },
 
   methods: {
-    checkLogin () {
-      const age = Number(window.localStorage.getItem('token-age'))
-      console.log('age: ' + age)
-      const now = Date.now()
-      console.log('now: ' + now)
-      console.log('now-age: ' + (now - age))
-      if (age < now - 1800000) {
-        console.log('max age expired')
-        window.$nuxt.$router.replace('/login')
-      }
-      console.log(age)
-    },
     toHome () {
       this.dialog.next = false
       window.$nuxt.$router.replace('/')

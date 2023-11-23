@@ -33,7 +33,7 @@ export default {
     items: [],
     rules: {
       tag: (value) => {
-        const pattern = /^[a-zA-Z]*$/
+        const pattern = /^[a-zA-Zß]*$/
         return pattern.test(value) || 'In Tags sind nur Buchstaben erlaubt'
       }
     }

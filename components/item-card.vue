@@ -1,7 +1,7 @@
 <template>
   <v-card
     v-ripple="false"
-    class="mb-2"
+    class="mt-2"
   >
     <v-list-item two-line @click="show = !show">
       <v-list-item-avatar
@@ -37,16 +37,24 @@
         </v-list-item-subtitle>
         <v-list-item-subtitle>
           <v-icon left small>
-            {{ item.interests.length > 0 ? mdiAccountAlert : '' }}
+            {{ item.interests.length > 0 ? (filterInterests && filteredInterests.length === 0 ? mdiAccountCheck : mdiAccountAlert) : '' }}
           </v-icon>
           <v-chip
-            v-for="interest in item.interests"
+            v-for="interest in filterInterests ? filteredInterests : item.interests"
             :key="interest.id"
             class="mr-1"
             color="warning"
             x-small
           >
             {{ interest.user.username }}
+          </v-chip>
+          <v-chip
+            v-if="filterInterests && filteredInterests.length === 0"
+            class="mr-1"
+            color="secondary"
+            x-small
+          >
+            Keine Interessenten
           </v-chip>
         </v-list-item-subtitle>
       </v-list-item-content>
@@ -56,7 +64,7 @@
       <div v-show="show">
         <v-list-item>
           <v-list-item-content class="mx-0">
-            <v-list-item-subtitle class="body-1 font-weight-black">
+            <v-list-item-subtitle class="font-weight-black">
               Lagerort
             </v-list-item-subtitle>
             <v-list-item-subtitle class="body-1">
@@ -82,9 +90,30 @@
                 {{ tag.tag }}
               </v-chip>
             </v-list-item-subtitle>
+            <v-list-item-subtitle
+              v-if="actionRemoveInterest || (actionAddInterest && !ownInterest)"
+              class="mt-2 font-weight-black"
+            >
+              Aktionen:
+            </v-list-item-subtitle>
+            <v-list-item-subtitle
+              class="body-2 pb-1"
+            >
+              <action-remove-interest
+                v-if="actionRemoveInterest"
+                :interest-id="ownInterest.id"
+                :item-id="item.id"
+                @removed-interest="$emit('reload-data')"
+              />
+              <action-add-interest
+                v-if="actionAddInterest && !ownInterest"
+                :item-id="item.id"
+                @added-interest="$emit('reload-data')"
+              />
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
-        <v-card-text>
+        <v-card-text class="pt-0">
           <v-img
             :src="imgBaseUrl + item.image"
             width="100%"
@@ -98,14 +127,32 @@
 </template>
 
 <script>
-import { mdiMapMarker, mdiViewList, mdiAccountAlert } from '@mdi/js'
+import { mdiMapMarker, mdiViewList, mdiAccountAlert, mdiAccountCheck } from '@mdi/js'
+import ActionRemoveInterest from '~/components/action/action-remove-interest'
+import ActionAddInterest from '~/components/action/action-add-interest'
 
 export default {
   name: 'ItemCard',
+  components: { ActionAddInterest, ActionRemoveInterest },
   props: {
     item: {
       type: Object,
       required: true
+    },
+    filterInterests: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+    actionRemoveInterest: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    actionAddInterest: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {
@@ -113,9 +160,24 @@ export default {
       mdiMapMarker,
       mdiViewList,
       mdiAccountAlert,
+      mdiAccountCheck,
       imgBaseUrl: this.$config.imgBaseUrl,
       show: false
     }
+  },
+
+  computed: {
+    filteredInterests () {
+      // eslint-disable-next-line no-return-assign
+      return this.item.interests.filter(interest => interest.user.username !== this.username)
+    },
+    ownInterest () {
+      const ownInterest = this.item.interests.filter(interest => interest.user.username === this.username)
+      return ownInterest[0]
+    }
+  },
+  beforeMount () {
+    this.username = this.$auth.user.username
   }
 }
 </script>

@@ -5,7 +5,7 @@
   >
     <v-card-text>
       <v-img
-        :src="'../pics/' + picture"
+        :src="imgBaseUrl + item.image"
         width="100%"
         style="max-width: 500px; "
         aspect-ratio="1"
@@ -14,15 +14,27 @@
     <v-list-item>
       <v-list-item-content class="mx-0">
         <v-list-item-title class="title">
-          {{ tags }}
+          <v-chip
+            v-for="tag in item.tags"
+            :key="tag.id"
+            class="mr-1"
+            small
+            label
+          >
+            {{ tag.tag }}
+          </v-chip>
         </v-list-item-title>
         <v-list-item-subtitle class="body-1">
-          <v-icon left small> mdi-map-marker </v-icon>
-          {{ room }}
+          <v-icon left small>
+            {{ mdiMapMarker }}
+          </v-icon>
+          {{ $t(item.originalRoom.name) }}
         </v-list-item-subtitle>
         <v-list-item-subtitle class="body-1">
-          <v-icon left small> mdi-view-list </v-icon>
-          {{ type }}
+          <v-icon left small>
+            {{ mdiViewList }}
+          </v-icon>
+          {{ $t(item.type.name) }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -33,7 +45,7 @@
           <v-btn
             fab
             x-large
-            color="complementary"
+            color="warning"
             @click="reject"
           >
             <v-icon dark>
@@ -46,7 +58,7 @@
           <v-btn
             fab
             x-large
-            color="primaryLight"
+            color="secondary"
             @click="accept"
           >
             <v-icon dark>
@@ -60,41 +72,29 @@
 </template>
 
 <script>
+import { mdiMapMarker, mdiViewList } from '@mdi/js'
+
 export default {
   name: 'RankCard',
   props: {
-    tags: {
-      type: String,
-      required: true,
-      default: ''
-    },
-    room: {
-      type: String,
-      required: true,
-      default: ''
-    },
-    type: {
-      type: String,
-      required: true,
-      default: ''
-    },
-    picture: {
-      type: String,
-      required: true,
-      default: ''
+    item: {
+      type: Object,
+      required: true
     }
   },
   data () {
     return {
-
+      mdiMapMarker,
+      mdiViewList,
+      imgBaseUrl: this.$config.imgBaseUrl
     }
   },
   methods: {
     accept () {
-      this.$nuxt.$emit('accept-thing')
+      this.$emit('select-ranking', true)
     },
     reject () {
-      this.$nuxt.$emit('reject-thing')
+      this.$emit('select-ranking', false)
     }
   }
 }
