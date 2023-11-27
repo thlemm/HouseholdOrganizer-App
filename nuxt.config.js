@@ -85,7 +85,9 @@ export default {
           complementary: colors.red.lighten_40,
           warning: colors.red.lighten_50,
           error: colors.purple.base,
-          neutral: colors.grey.base
+          neutral: colors.grey.base,
+          info: colors.beige.darken_20,
+          action: colors.green.lighten_20
         }
       }
     }

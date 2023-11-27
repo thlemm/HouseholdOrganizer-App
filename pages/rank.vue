@@ -24,7 +24,7 @@
       </v-banner>
       <info-card
         v-if="(item === undefined || item === '') && loading === false"
-        title="Nicht gefunden"
+        title="Nicht zu bewerten"
         subtitle="Es wurden noch keine neuen Sachen in den Katalog eingetragen. Versuche es später nocheinmal."
       />
       <loading-animation

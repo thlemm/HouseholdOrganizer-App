@@ -12,7 +12,7 @@
       dark
       class="mb-2"
       elevation="3"
-      icon="mdi-cube-scan"
+      :icon="mdiArchiveSearch"
       color="primary"
     >
       Kiste Durchleuchten
@@ -70,7 +70,7 @@
       >
         <item-card
           :item="item"
-          :action-add-interest="true"
+          :action-toggle-interest="true"
           :filter-interests="false"
           @reload-data="scan"
         />
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-
+import { mdiArchiveSearch } from '@mdi/js'
 import InfoSnackbar from '~/components/feedback/info-snackbar'
 import LoadingAnimation from '~/components/feedback/loading-animation'
 export default {
@@ -90,6 +90,7 @@ export default {
 
   data () {
     return {
+      mdiArchiveSearch,
       alert: false,
       message: '',
       loader: null,

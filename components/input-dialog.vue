@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="active"
+    :value="active"
     fullscreen
     hide-overlay
     transition="slide-x-reverse-transition"
@@ -10,34 +10,40 @@
         dark
         color="primary"
       >
-        <v-toolbar-title />
+        <v-btn
+          icon
+          dark
+          absolute
+          @click="$emit('click-dialog-close')"
+        >
+          <v-icon>
+            {{ mdiArrowLeft }}
+          </v-icon>
+        </v-btn>
         <v-spacer />
-        <v-toolbar-items>
-          <v-btn
-            icon
-            dark
-            @click="$emit('click-dialog-close')"
-          >
-            <v-icon>mdi-check</v-icon>
-          </v-btn>
-        </v-toolbar-items>
+        <v-toolbar-title>
+          {{ toolbarTitle }}
+        </v-toolbar-title>
+        <v-spacer />
       </v-toolbar>
 
       <v-container
         fluid
       >
-        <v-row>
-          <v-col>
-            <slot />
-          </v-col>
-        </v-row>
+        <slot />
       </v-container>
     </v-card>
+    <v-footer
+      color="primary"
+      app
+    >
+      <span class="white--text">HouseholdOrganizer</span>
+    </v-footer>
   </v-dialog>
 </template>
 
 <script>
-
+import { mdiArrowLeft } from '@mdi/js'
 export default {
   name: 'InputDialog',
 
@@ -46,12 +52,17 @@ export default {
       type: Boolean,
       required: true,
       default: false
+    },
+    toolbarTitle: {
+      type: String,
+      required: true,
+      default: ''
     }
   },
 
   data () {
     return {
-
+      mdiArrowLeft
     }
   }
 }

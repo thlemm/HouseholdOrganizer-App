@@ -6,10 +6,10 @@
       v-model="drawer"
       app
     >
-      <template v-slot:prepend>
+      <template #prepend>
         <v-list-item two-line>
           <v-list-item-avatar>
-            <img src="/avatar.png">
+            <img src="/avatar.png" alt="">
           </v-list-item-avatar>
 
           <v-list-item-content>
@@ -28,7 +28,7 @@
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-home</v-icon>
+            <v-icon>{{ mdiHome }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Startseite</v-list-item-title>
@@ -41,7 +41,7 @@
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-format-list-text</v-icon>
+            <v-icon>{{ mdiHeart }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Meine Sachen</v-list-item-title>
@@ -54,7 +54,7 @@
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-thumbs-up-down</v-icon>
+            <v-icon>{{ mdiThumbsUpDown }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Sachen aussuchen</v-list-item-title>
@@ -69,7 +69,7 @@
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-magnify</v-icon>
+            <v-icon>{{ mdiMagnify }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Sachen suchen</v-list-item-title>
@@ -82,10 +82,23 @@
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-cube-scan</v-icon>
+            <v-icon>{{ mdiArchiveSearch }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Kiste durchleuchten</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          link
+          to="/location"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon>{{ mdiArchiveEdit }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Lagerorte verwalten</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -113,7 +126,7 @@
             nuxt
           >
             <v-list-item-action>
-              <v-icon>mdi-logout</v-icon>
+              <v-icon>{{ mdiLogout }}</v-icon>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>Abmelden</v-list-item-title>
@@ -127,7 +140,7 @@
             nuxt
           >
             <v-list-item-action>
-              <v-icon>mdi-login</v-icon>
+              <v-icon>{{ mdiLogin }}</v-icon>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>Anmelden</v-list-item-title>
@@ -143,7 +156,7 @@
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-cog</v-icon>
+            <v-icon>{{ mdiCog }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Einstellungen</v-list-item-title>
@@ -161,7 +174,7 @@
             <v-icon
               color="complementary"
             >
-              mdi-plus-circle
+              {{ mdiPlusCircle }}
             </v-icon>
           </v-list-item-action>
           <v-list-item-content>
@@ -182,6 +195,7 @@
 
     <v-main>
       <v-container
+        class="pa-0 ma-0"
         fluid
       >
         <nuxt />
@@ -198,10 +212,22 @@
 </template>
 
 <script>
-
+import { mdiHome, mdiHeart, mdiThumbsUpDown, mdiMagnify, mdiArchiveSearch, mdiArchiveEdit, mdiLogin, mdiLogout, mdiCog, mdiPlusCircle } from '@mdi/js'
 export default {
-  data: () => ({
-    drawer: null
-  })
+  data () {
+    return {
+      drawer: null,
+      mdiHome,
+      mdiHeart,
+      mdiThumbsUpDown,
+      mdiMagnify,
+      mdiArchiveSearch,
+      mdiArchiveEdit,
+      mdiLogin,
+      mdiLogout,
+      mdiCog,
+      mdiPlusCircle
+    }
+  }
 }
 </script>

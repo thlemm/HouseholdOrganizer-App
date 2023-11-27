@@ -44,7 +44,7 @@
         >
           <item-card
             :item="item"
-            :action-remove-interest="true"
+            :action-toggle-interest="true"
             @reload-data="getData"
           />
         </v-lazy>

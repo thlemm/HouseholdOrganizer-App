@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="float:right;">
     <info-snackbar
       :active="snackbar"
       @click-action="snackbar = !snackbar"
@@ -8,31 +8,42 @@
     </info-snackbar>
     <dialog-confirm
       :active="dialog"
-      :text="'Soll dein Interesse an dieser Sache wirklich gespeichert werden?'"
-      @click-confirm="addInterest()"
+      :text="'Soll dein Interesse an dieser Sache wirklich gelöscht werden?'"
+      @click-confirm="toggleInterest()"
       @click-reject="dialog = false"
     />
     <v-btn
+      class="mr-1"
       color="neutral"
       rounded
-      @click="dialog = true"
+      @click="onClickButton()"
     >
-      <v-icon color="secondary">
-        {{ mdiHeart }}
+      <v-icon color="warning">
+        {{ isInterested ? mdiHeart : mdiHeartOutline }}
       </v-icon>
     </v-btn>
   </div>
 </template>
 
 <script>
-import { mdiHeart } from '@mdi/js'
+import { mdiHeart, mdiHeartOutline, mdiHeartOff } from '@mdi/js'
 import DialogConfirm from '~/components/feedback/dialog-confirm'
 import InfoSnackbar from '~/components/feedback/info-snackbar'
 
 export default {
-  name: 'ActionAddInterest',
+  name: 'ActionToggleInterest',
   components: { InfoSnackbar, DialogConfirm },
   props: {
+    interestId: {
+      type: Number,
+      required: false,
+      default: 0
+    },
+    isInterested: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     itemId: {
       type: Number,
       required: true
@@ -41,34 +52,41 @@ export default {
   data () {
     return {
       mdiHeart,
+      mdiHeartOutline,
+      mdiHeartOff,
       dialog: false,
       snackbar: false,
       feedbackMessage: null
     }
   },
   methods: {
+    onClickButton () {
+      if (this.isInterested) {
+        this.dialog = true
+      } else {
+        this.toggleInterest()
+      }
+    },
     handleError (feedbackMessage) {
       this.snackbar = true
       this.feedbackMessage = feedbackMessage
     },
-    async addInterest () {
-      const addInterestResponse = await this.addInterestRequest()
-      if (addInterestResponse) {
-        this.$emit('added-interest')
-      } else {
+    async toggleInterest () {
+      const updateInterestResponse = await this.updateInterestRequest()
+      if (!updateInterestResponse) {
         this.handleError('Interesse konnte nicht aktualisiert werden')
       }
+      this.$emit('update-interest')
       this.dialog = false
     },
-    addInterestRequest () {
-      const url = '/api/v2/interest'
-      const payload = { item: this.itemId, interested: true }
+    updateInterestRequest () {
+      const url = '/api/v2/interest/item/' + this.itemId + '?isInterested=' + !this.isInterested
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
       const _this = this
       return new Promise(function (resolve) {
-        _this.$axios.post(url, payload, config)
+        _this.$axios.patch(url, config)
           .then((response) => {
-            if (response.status === 201) {
+            if (response.status === 200) {
               resolve(true)
             } else {
               resolve(false)

@@ -25,7 +25,7 @@
         </v-list-item-title>
         <v-list-item-subtitle>
           <v-icon left small>
-            {{ mdiMapMarker }}
+            {{ mdiFloorPlan }}
           </v-icon>
           {{ $t(item.originalRoom.name) }}
         </v-list-item-subtitle>
@@ -68,12 +68,21 @@
               Lagerort
             </v-list-item-subtitle>
             <v-list-item-subtitle class="body-1">
-              Raum: {{ item.currentRoom ? $t(item.currentRoom.name) : '---' }}
+              <v-icon left small class="mr-0">
+                {{ mdiMapMarker }}
+              </v-icon>
+              Raum: {{ item.location.room ? $t(item.location.room.name) : '---' }}
             </v-list-item-subtitle>
             <v-list-item-subtitle class="body-1">
-              Kiste/Regal: {{ item.location }}
+              <v-icon left small class="mr-0">
+                {{ mdiArchive }}
+              </v-icon>
+              Kiste/Regal: {{ item.location.mark }}
             </v-list-item-subtitle>
             <v-list-item-subtitle class="body-1">
+              <v-icon left small class="mr-0">
+                {{ mdiTagText }}
+              </v-icon>
               Teilenummer: {{ item.mark }}
             </v-list-item-subtitle>
             <v-list-item-subtitle class="mt-2 font-weight-black">
@@ -91,7 +100,6 @@
               </v-chip>
             </v-list-item-subtitle>
             <v-list-item-subtitle
-              v-if="actionRemoveInterest || (actionAddInterest && !ownInterest)"
               class="mt-2 font-weight-black"
             >
               Aktionen:
@@ -99,16 +107,16 @@
             <v-list-item-subtitle
               class="body-2 pb-1"
             >
-              <action-remove-interest
-                v-if="actionRemoveInterest"
-                :interest-id="ownInterest.id"
+              <action-update-location
                 :item-id="item.id"
-                @removed-interest="$emit('reload-data')"
+                @update-location="$emit('reload-data')"
               />
-              <action-add-interest
-                v-if="actionAddInterest && !ownInterest"
+              <action-toggle-interest
+                v-if="actionToggleInterest"
+                :interest-id="ownInterest?.id"
+                :is-interested="ownInterest?.interested"
                 :item-id="item.id"
-                @added-interest="$emit('reload-data')"
+                @update-interest="$emit('reload-data')"
               />
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -127,13 +135,13 @@
 </template>
 
 <script>
-import { mdiMapMarker, mdiViewList, mdiAccountAlert, mdiAccountCheck } from '@mdi/js'
-import ActionRemoveInterest from '~/components/action/action-remove-interest'
-import ActionAddInterest from '~/components/action/action-add-interest'
+import { mdiMapMarker, mdiViewList, mdiAccountAlert, mdiAccountCheck, mdiArchive, mdiTagText, mdiFloorPlan, mdiHeart } from '@mdi/js'
+import ActionToggleInterest from '~/components/action/action-toggle-interest'
+import ActionUpdateLocation from '~/components/action/action-update-location'
 
 export default {
   name: 'ItemCard',
-  components: { ActionAddInterest, ActionRemoveInterest },
+  components: { ActionUpdateLocation, ActionToggleInterest },
   props: {
     item: {
       type: Object,
@@ -144,12 +152,7 @@ export default {
       required: false,
       default: true
     },
-    actionRemoveInterest: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-    actionAddInterest: {
+    actionToggleInterest: {
       type: Boolean,
       required: false,
       default: false
@@ -161,6 +164,10 @@ export default {
       mdiViewList,
       mdiAccountAlert,
       mdiAccountCheck,
+      mdiArchive,
+      mdiTagText,
+      mdiFloorPlan,
+      mdiHeart,
       imgBaseUrl: this.$config.imgBaseUrl,
       show: false
     }

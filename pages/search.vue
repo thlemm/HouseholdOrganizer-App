@@ -79,7 +79,7 @@
       >
         <item-card
           :item="item"
-          :action-add-interest="true"
+          :action-toggle-interest="true"
           :filter-interests="false"
           @reload-data="search"
         />
