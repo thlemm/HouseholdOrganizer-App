@@ -2,12 +2,19 @@
   <v-container
     fluid
   >
+    <info-snackbar
+      :active="snackbar"
+      @click-action="snackbar = !snackbar"
+    >
+      {{ feedbackMessage }}
+    </info-snackbar>
+
     <v-banner
       dark
       class="mb-2"
       elevation="3"
-      icon="mdi-magnify"
-      color="complementary"
+      :icon="mdiMagnify"
+      color="primary"
     >
       Suchen
     </v-banner>
@@ -16,48 +23,35 @@
     <v-form>
       <v-row>
         <v-col align="center">
-          <v-alert
-            :value="alert"
+          <v-text-field
+            v-model="input.mark"
+            type="number"
             outlined
             dense
-            type="info"
-            text
-            transition="scale-transition"
-          >
-            {{ message }}
-          </v-alert>
+            clearable
+            label="Teilenummer"
+          />
 
           <v-select
             v-model="input.type"
             :items="types"
+            item-text="label"
+            item-value="id"
             clearable
             outlined
             dense
             label="Typ"
           />
 
-          <v-select
-            v-model="input.room"
-            :items="rooms"
-            clearable
-            outlined
-            dense
-            label="Raum"
-          />
-
-          <v-text-field
-            v-model="input.text"
-            label="Schlagwort"
-            clearable
-            outlined
-            dense
+          <input-tags
+            v-model="input.tags"
           />
         </v-col>
       </v-row>
       <v-row>
         <v-col align="end">
           <v-btn
-            :loading="loading"
+            :disabled="loading"
             color="secondary"
             @click="search"
           >
@@ -66,152 +60,140 @@
         </v-col>
       </v-row>
     </v-form>
-    <v-divider class="mt-3 mb-3" />
-
-    <div
-      v-for="(thing, i) in things"
-      :key="i"
-    >
-      <v-sheet class="fill-height" color="transparent">
-        <v-lazy
-          v-model="thing.isActive"
-          :options="{
-            threshold: .5
-          }"
-          class="fill-height"
-          transition="fade-transition"
-        >
-          <thing-card
-            :thing-id="thing.thing_id"
-            :tags="thing.tags"
-            :location="thing.location"
-            :box-id="thing.box_id"
-            :room="thing.room"
-            :type="thing.type"
-            :picture="thing.picture"
-            :user="thing.user"
-          />
-        </v-lazy>
-      </v-sheet>
+    <v-divider class="mt-3 mb-0" />
+    <span class="mt-0 pt-0 mb-5 grey--text">{{ items.length }} {{ items.length > 1 ? 'Ergebnisse' : 'Ergebnis' }} gefunden:</span>
+    <loading-animation
+      v-if="loading"
+      color="secondary"
+    />
+    <div v-if="lazy">
+      <v-lazy
+        v-for="(item, i) in items"
+        :key="i"
+        :options="{
+          threshold: .5
+        }"
+        class="fill-height"
+        transition="fade-transition"
+        @input="countLoadingEvents()"
+      >
+        <item-card
+          :item="item"
+          :action-toggle-interest="true"
+          :filter-interests="false"
+          @reload-data="search"
+        />
+      </v-lazy>
     </div>
   </v-container>
 </template>
 
 <script>
-
+import { mdiMagnify } from '@mdi/js'
+import InputTags from '~/components/input/input-tags'
+import LoadingAnimation from '~/components/feedback/loading-animation'
+import InfoSnackbar from '~/components/feedback/info-snackbar'
 export default {
   name: 'Search',
+  components: { InfoSnackbar, LoadingAnimation, InputTags },
   layout: 'default',
 
   data () {
     return {
+      mdiMagnify,
       alert: false,
       message: '',
-      loader: null,
       loading: false,
-      rooms: ['Esszimmer', 'Wohnzimmer', 'Kueche', 'Hof', 'Arbeitszimmer', 'Schlafzimmer', 'Gruenes Zimmer', 'Lottozimmer', 'Liborizimmer I', 'Liborizimmer II', 'Bad', 'Toilette rosa', 'Toilette beige', 'Topfkammer', 'Diele EG', 'Diele 1. OG', 'Diele 2. OG', 'Zentralkeller', 'Waschkeller', 'Lagerkeller', 'Werkstatt', 'Suedbalkon', 'Nordbalkon'],
-      types: ['Dekoration', 'Technisches Geraet', 'Gebrauchsgegenstand', 'Moebelstueck', 'Einrichtungsgegenstand'],
-      locations: ['Keller', 'Hof', 'Gruenes Zimmer', 'Nach Bild'],
+      types: [
+        { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
+        { id: 2, name: 'TYPE_FURNITURE', label: this.$t('TYPE_FURNITURE') },
+        { id: 3, name: 'TYPE_UTILITY_ITEM', label: this.$t('TYPE_UTILITY_ITEM') },
+        { id: 4, name: 'ROOM_TECHNICAL_DEVICE', label: this.$t('ROOM_TECHNICAL_DEVICE') },
+        { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
+      ],
       input: {
-        room: '',
-        type: '',
-        text: ''
+        mark: null,
+        type: null,
+        tags: []
       },
-      dialog: {
-        search: false
-      },
-      things: null,
-      isActive: false
+      items: [],
+      snackbar: false,
+      feedbackMessage: null,
+      eventsCounter: 0,
+      eventLimit: 0,
+      lazy: true
     }
   },
 
   beforeMount () {
-    this.checkLogin()
     if (!this.$auth.loggedIn) {
-      window.$nuxt.$router.replace('/login')
+      this.$nuxt.$router.replace('/login?target=search')
     }
   },
 
   methods: {
-    checkLogin () {
-      const age = Number(window.localStorage.getItem('token-age'))
-      console.log('age: ' + age)
-      const now = Date.now()
-      console.log('now: ' + now)
-      console.log('now-age: ' + (now - age))
-      if (age < now - 1800000) {
-        console.log('max age expired')
-        window.$nuxt.$router.replace('/login')
-      }
-      console.log(age)
-    },
-    createPaylod () {
-      return {
-        type: this.input.type,
-        room: this.input.room,
-        text: this.input.text
+    countLoadingEvents () {
+      this.eventsCounter += 1
+      if (this.eventsCounter === this.eventLimit) {
+        this.loading = false
       }
     },
-    timeout () {
-      if (this.loading) {
-        this.showAlert('Anmeldung fehlgeschlagen.')
-      }
+    handleError (feedbackMessage) {
+      this.snackbar = true
+      this.feedbackMessage = feedbackMessage
+      this.loading = false
     },
-    checkInput (input) {
-      if (input.room === '' && input.type === '' && input.text === '') {
-        this.message = 'Zu wenig Angaben'
-        this.alert = true
-        return false
+    createPayload () {
+      if (this.input.mark) {
+        return {
+          mark: this.input.mark,
+          tags: this.input.tags
+        }
+      } else if (this.input.type === null) {
+        return { tags: this.input.tags }
+      } else {
+        return {
+          type: this.input.type,
+          tags: this.input.tags
+        }
       }
-      return true
     },
     async search () {
-      try {
-        if (this.checkInput(this.input)) {
-          this.dialog.search = true
-          this.loading = true
-          const response = await this.postRequest()
-          if (response) {
-            this.loading = false
-            this.things = response.data.data
-          } else {
-            this.things = null
-          }
-        }
-      } catch (err) {
-        if (err.message === 'Request Error') {
-          this.showSnackbar('Request Error')
-        } else if (err.message === 'Network Error') {
-          this.showSnackbar('Network Error')
-        } else if (err.message === 'Unknown Error') {
-          this.showSnackbar('Unknown Error')
-        } else {
-          this.showSnackbar('Unexpected Error')
-        }
+      this.items = []
+      this.lazy = false
+      this.eventsCounter = 0
+      this.loading = true
+      const searchResponse = await this.searchRequest()
+      if (searchResponse) {
+        this.items = searchResponse
+        this.eventLimit = this.items.length
+        this.lazy = true
+      } else {
+        this.items = []
+        this.handleError('Fehler bei Abfrage der Daten')
       }
     },
-    postRequest () {
-      const url = '/thing/search/'
-      const payload = this.createPaylod()
+    searchRequest () {
+      const url = '/api/v2/items/search'
+      const payload = this.createPayload()
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
-      return new Promise(function (resolve, reject) {
-        window.$nuxt.$http.plain.post(url, payload, config)
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.post(url, payload, config)
           .then((response) => {
             if (response.status === 200) {
-              resolve(response)
+              resolve(response.data)
             } else {
               resolve(false)
             }
           })
           .catch((err) => {
-            const reports = window.localStorage.getItem('error-reports')
-            window.localStorage.setItem('error-reports', JSON.stringify(err) + ';' + reports)
-            console.log(JSON.stringify(err))
             if (err.message === 'Network Error') {
-              return reject(Error('Network Error'))
+              _this.handleError('Server nicht erreichbar')
             } else {
-              return reject(Error('Unknown Error'))
+              _this.handleError('Unerwarteter Fehler')
             }
+            resolve(false)
           })
       })
     }

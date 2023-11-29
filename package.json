@@ -1,9 +1,11 @@
 {
-  "name": "libori-catalog",
+  "name": "household-organizer",
   "version": "1.0.0",
+  "description": "The Progressive Web App of the HouseholdOrganizer project. A tool for collaborative digital management and dissolution of a household.",
+  "author": "Thomas Lemmerz",
   "private": true,
   "scripts": {
-    "dev": "nuxt --hostname localhost --port 5002",
+    "dev": "nuxt --hostname localhost --port 8083",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
@@ -12,23 +14,25 @@
     "lintfix": "npm run lint:js -- --fix"
   },
   "dependencies": {
-    "nuxt": "^2.14.0",
-    "vue": "^2.6.14",
-    "vuedraggable": "^2.24.3"
+    "nuxt": "^2.13.3",
+    "vue": "^2.6.14"
   },
   "devDependencies": {
-    "@nuxtjs/auth": "^4.9.1",
-    "@nuxtjs/auth-next": "^5.0.0-1618898588.9655d0e",
-    "@nuxtjs/axios": "^5.12.0",
-    "@nuxtjs/pwa": "^3.0.0-beta.20",
-    "@nuxtjs/eslint-config": "^3.1.0",
-    "@nuxtjs/eslint-module": "^2.0.0",
-    "@nuxtjs/vuetify": "^1.11.2",
     "@babel/core": "^7.17.7",
     "@babel/eslint-parser": "^7.17.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.5.0",
-    "eslint-plugin-nuxt": "^1.0.0",
-    "vue-axios": "^2.1.5"
+    "@mdi/js": "^6.5.95",
+    "@nuxt/types": "^2.15.8",
+    "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/eslint-config": "^9.0.0",
+    "@nuxtjs/eslint-module": "^3.0.2",
+    "@nuxtjs/i18n": "^7.2.0",
+    "@nuxtjs/moment": "^1.6.1",
+    "@nuxtjs/vuetify": "^1.12.3",
+    "@nuxtjs/pwa": "^3.0.0-beta.20",
+    "@nuxtjs/auth": "^4.9.1",
+    "@nuxtjs/auth-next": "5.0.0-1618898588.9655d0e",
+    "eslint": "8.22.0",
+    "eslint-plugin-nuxt": "^3.2.0",
+    "vuedraggable": "^2.24.3"
   }
 }

@@ -2,12 +2,18 @@
   <v-container
     fluid
   >
+    <info-snackbar
+      :active="snackbar"
+      @click-action="snackbar = !snackbar"
+    >
+      {{ feedbackMessage }}
+    </info-snackbar>
     <v-banner
       dark
       class="mb-2"
       elevation="3"
-      icon="mdi-cube-scan"
-      color="complementary"
+      :icon="mdiArchiveSearch"
+      color="primary"
     >
       Kiste Durchleuchten
     </v-banner>
@@ -15,27 +21,15 @@
       title="Nummer eingeben"
       subtitle="Hier kann die Nummer der Kiste oder des Regals eingegeben werden, dass gescannt werden soll."
     />
-
-    <br>
     <v-form v-model="isFormValid">
       <v-row>
         <v-col align="center">
-          <v-alert
-            :value="alert"
-            outlined
-            dense
-            type="info"
-            text
-            transition="scale-transition"
-          >
-            {{ message }}
-          </v-alert>
-
           <v-col
             cols="5"
           >
             <v-text-field
-              v-model="input.box_id"
+              v-model="input.location"
+              class="mt-5"
               :rules="[rules.required, rules.location]"
               type="number"
               outlined
@@ -46,10 +40,9 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col align="end">
+        <v-col>
           <v-btn
-            :disabled="!isFormValid"
-            :loading="loading"
+            :disabled="!isFormValid || loading"
             color="secondary"
             @click="scan"
           >
@@ -58,51 +51,52 @@
         </v-col>
       </v-row>
     </v-form>
-    <v-divider class="mt-3 mb-3" />
-
-    <div
-      v-for="(thing, i) in things"
-      :key="i"
-    >
-      <v-sheet class="fill-height" color="transparent">
-        <v-lazy
-          v-model="thing.isActive"
-          :options="{
-            threshold: .5
-          }"
-          class="fill-height"
-          transition="fade-transition"
-        >
-          <thing-card
-            :thing-id="thing.thing_id"
-            :tags="thing.tags"
-            :location="thing.location"
-            :box-id="thing.box_id"
-            :room="thing.room"
-            :type="thing.type"
-            :picture="thing.picture"
-            :user="thing.user"
-          />
-        </v-lazy>
-      </v-sheet>
+    <v-divider class="mt-3 mb-0" />
+    <span class="mt-0 pt-0 mb-5 grey--text">{{ items.length }} Ergebnisse gefunden:</span>
+    <loading-animation
+      v-if="loading"
+      color="secondary"
+    />
+    <div v-if="lazy">
+      <v-lazy
+        v-for="(item, i) in items"
+        :key="i"
+        :options="{
+          threshold: .5
+        }"
+        class="fill-height"
+        transition="fade-transition"
+        @input="countLoadingEvents()"
+      >
+        <item-card
+          :item="item"
+          :action-toggle-interest="true"
+          :filter-interests="false"
+          @reload-data="scan"
+        />
+      </v-lazy>
     </div>
   </v-container>
 </template>
 
 <script>
-
+import { mdiArchiveSearch } from '@mdi/js'
+import InfoSnackbar from '~/components/feedback/info-snackbar'
+import LoadingAnimation from '~/components/feedback/loading-animation'
 export default {
-  name: 'Search',
+  name: 'Scan',
+  components: { LoadingAnimation, InfoSnackbar },
   layout: 'default',
 
   data () {
     return {
+      mdiArchiveSearch,
       alert: false,
       message: '',
       loader: null,
       loading: false,
       input: {
-        box_id: null
+        location: null
       },
       isFormValid: false,
       rules: {
@@ -112,7 +106,12 @@ export default {
           return pattern.test(value) || 'Zahl eingeben.'
         }
       },
-      things: null
+      items: [],
+      snackbar: false,
+      feedbackMessage: null,
+      eventsCounter: 0,
+      eventLimit: 0,
+      lazy: true
     }
   },
   watch: {
@@ -122,45 +121,61 @@ export default {
       this.loader = null
     }
   },
+  beforeMount () {
+    if (!this.$auth.loggedIn) {
+      this.$nuxt.$router.replace('/login?target=scan')
+    }
+  },
   methods: {
-    timeout () {
-      if (this.loading) {
-        this.showAlert('Durchleuchten fehlgeschlagen.')
+    countLoadingEvents () {
+      this.eventsCounter += 1
+      if (this.eventsCounter === this.eventLimit) {
+        this.loading = false
       }
     },
     async scan () {
       if (this.$auth.loggedIn) {
+        this.items = []
+        this.lazy = false
+        this.eventsCounter = 0
         this.loading = true
         const response = await this.getRequest()
         if (response) {
-          this.loading = false
-          this.things = response
+          this.items = response
+          this.eventLimit = this.items.length
+          this.lazy = true
         } else {
-          this.things = null
+          this.items = []
+          this.snackbar = true
+          this.handleError('Fehler bei Abfrage der Daten')
         }
       }
     },
+    handleError (feedbackMessage) {
+      this.snackbar = true
+      this.feedbackMessage = feedbackMessage
+      this.loading = false
+    },
     getRequest () {
-      const url = '/thing/scan/' + this.input.box_id
+      const url = '/api/v2/items/location/' + this.input.location
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
-      return new Promise(function (resolve, reject) {
-        window.$nuxt.$http.plain.get(url, config)
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.get(url, config)
           .then((response) => {
             if (response.status === 200) {
-              resolve(response.data.data)
+              resolve(response.data)
             } else {
-              reject(Error('An error occured.'))
+              resolve(false)
             }
           })
           .catch((err) => {
-            console.log(JSON.stringify(err))
-            const reports = window.localStorage.getItem('error-reports')
-            window.localStorage.setItem('error-reports', JSON.stringify(err) + ';' + reports)
             if (err.message === 'Network Error') {
-              console.log('Server nicht erreichbar.')
+              _this.handleError('Server nicht erreichbar')
             } else {
-              console.log('Abfrage fehlgeschlagen.')
+              _this.handleError('Unerwarteter Fehler')
             }
+            resolve(false)
           })
       })
     }

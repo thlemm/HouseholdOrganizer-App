@@ -7,141 +7,137 @@
     <v-container
       fluid
     >
+      <info-snackbar
+        :active="snackbar"
+        @click-action="snackbar = !snackbar"
+      >
+        {{ feedbackMessage }}
+      </info-snackbar>
       <v-banner
-        v-if="thing === undefined"
         dark
         class="mb-2"
         elevation="3"
-        icon="mdi-thumbs-up-down"
-        color="complementary"
+        :icon="mdiThumbsUpDown"
+        color="primary"
       >
         Neue Sachen bewerten
       </v-banner>
       <info-card
-        v-if="thing === undefined"
-        title="Nicht gefunden"
+        v-if="(item === undefined || item === '') && loading === false"
+        title="Nicht zu bewerten"
         subtitle="Es wurden noch keine neuen Sachen in den Katalog eingetragen. Versuche es später nocheinmal."
       />
-
+      <loading-animation
+        v-if="loading"
+        color="secondary"
+      />
       <rank-card
-        v-for="(element, i) in thing"
-        :key="i"
-        :thing-id="element.thing_id"
-        :tags="element.tags"
-        :room="element.room"
-        :type="element.type"
-        :picture="element.picture"
+        v-if="item && loading === false"
+        :item="item"
+        @select-ranking="onSelectedRanking($event)"
       />
     </v-container>
   </v-layout>
 </template>
 
 <script>
+import { mdiThumbsUpDown } from '@mdi/js'
+import LoadingAnimation from '~/components/feedback/loading-animation'
+import InfoSnackbar from '~/components/feedback/info-snackbar'
 
 export default {
   name: 'Rank',
+  components: { InfoSnackbar, LoadingAnimation },
   layout: 'default',
 
   data () {
     return {
+      mdiThumbsUpDown,
       show: null,
       notification: false,
-      thing: undefined
+      item: undefined,
+      snackbar: false,
+      feedbackMessage: null,
+      loading: false
     }
   },
   beforeMount () {
-    this.checkLogin()
     if (!this.$auth.loggedIn) {
-      window.$nuxt.$router.replace('/login')
+      this.$nuxt.$router.replace('/login?target=rank')
     }
-    this.getData()
-  },
-  created () {
-    this.$nuxt.$on('accept-thing', () => {
-      this.accept()
-    })
-    this.$nuxt.$on('reject-thing', () => {
-      this.reject()
-    })
-  },
-  beforeDestroy () {
-    this.$nuxt.$off('accept-thing')
-    this.$nuxt.$off('reject-thing')
+    this.getNextNotAssessedItem()
   },
   methods: {
-    checkLogin () {
-      const age = Number(window.localStorage.getItem('token-age'))
-      console.log('age: ' + age)
-      const now = Date.now()
-      console.log('now: ' + now)
-      console.log('now-age: ' + (now - age))
-      if (age < now - 1800000) {
-        console.log('max age expired')
-        window.$nuxt.$router.replace('/login')
-      }
-      console.log(age)
-    },
-    async accept () {
-      const response = await this.sendRanking(1)
-      if (response === 'success') {
-        console.log('Accepted')
-        this.getData()
+    async onSelectedRanking (value) {
+      this.loading = true
+      const sendRankingResponse = await this.sendRankingRequest(value)
+      if (sendRankingResponse) {
+        await this.getNextNotAssessedItem()
       }
     },
-    async reject () {
-      const response = await this.sendRanking(0)
-      if (response === 'success') {
-        console.log('Rejected')
-        this.getData()
-      }
+    handleError (feedbackMessage) {
+      this.snackbar = true
+      this.feedbackMessage = feedbackMessage
+      this.loading = false
     },
-    sendRanking (value) {
-      const url = '/thing/rank/'
-      const payload = { thing_id: this.thing[0].thing_id, status: value, username: this.$auth.user.username }
+    sendRankingRequest (value) {
+      const url = '/api/v2/interest'
+      const payload = { item: this.item.id, interested: value }
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
       return new Promise(function (resolve) {
-        window.$nuxt.$http.plain.post(url, payload, config)
+        _this.$axios.post(url, payload, config)
           .then((response) => {
-            if (response.status === 200) {
-              resolve(response.data.message)
+            if (response.status === 201) {
+              resolve(true)
             } else {
               resolve(false)
             }
           })
           .catch((err) => {
-            console.log(JSON.stringify(err))
             if (err.message === 'Network Error') {
-              console.log('Server nicht erreichbar.')
+              _this.handleError('Server nicht erreichbar')
             } else {
-              console.log('Abfrage fehlgeschlagen.')
+              _this.handleError('Unerwarteter Fehler')
             }
             resolve(false)
           })
       })
     },
-    async getData () {
-      // if (this.$auth.loggedIn) {
-      this.thing = await this.getUnranked()
-      console.log(this.thing)
+    async getNextNotAssessedItem () {
+      if (this.$auth.loggedIn) {
+        this.loading = true
+        const getNextNotAssessedItemResponse = await this.getNextNotAssessedItemRequest()
+        if (getNextNotAssessedItemResponse || getNextNotAssessedItemResponse === '') {
+          this.item = getNextNotAssessedItemResponse
+        } else {
+          this.snackbar = true
+          this.handleError('Fehler bei Abfrage der Daten')
+        }
+        this.loading = false
+      } else {
+        this.snackbar = true
+        this.handleError('Du bist nicht korrekt eingeloggt')
+      }
     },
-    getUnranked () {
-      const url = '/thing/unranked/' + this.$auth.user.username
+    getNextNotAssessedItemRequest () {
+      const url = '/api/v2/items/notassessed'
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
       return new Promise(function (resolve) {
-        window.$nuxt.$http.plain.get(url, config)
+        _this.$axios.get(url, config)
           .then((response) => {
             if (response.status === 200) {
-              resolve(response.data.data)
+              resolve(response.data)
             } else {
               resolve(false)
             }
           })
           .catch((err) => {
-            console.log(JSON.stringify(err))
             if (err.message === 'Network Error') {
-              console.log('Server nicht erreichbar.')
+              _this.handleError('Server nicht erreichbar')
             } else {
-              console.log('Abfrage fehlgeschlagen.')
+              _this.handleError('Unerwarteter Fehler')
             }
             resolve(false)
           })

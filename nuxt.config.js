@@ -1,3 +1,4 @@
+import colors from './assets/colors'
 
 export default {
   /*
@@ -10,8 +11,8 @@ export default {
   ** See https://nuxtjs.org/api/configuration-head
   */
   head: {
-    titleTemplate: '%s - ' + 'Libori-Katalog',
-    title: 'Libori Katalog' || '',
+    titleTemplate: '%s - ' + 'HouseholdOrganizer',
+    title: 'HouseholdOrganizer' || '',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -30,10 +31,7 @@ export default {
   ** Plugins to load before mounting the App
   ** https://nuxtjs.org/guide/plugins
   */
-  plugins: [{
-    src: '@/plugins/axios.js',
-    ssr: false
-  }],
+  plugins: [],
   /*
   ** Auto import components
   ** See https://nuxtjs.org/api/configuration-components
@@ -45,16 +43,17 @@ export default {
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
     '@nuxtjs/eslint-module',
-    '@nuxtjs/vuetify'
+    '@nuxtjs/vuetify',
+    '@nuxtjs/axios',
+    '@nuxtjs/i18n',
+    '@nuxtjs/moment',
+    '@nuxtjs/auth'
   ],
   /*
   ** Nuxt.js modules
   */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
-    '@nuxtjs/pwa',
-    '@nuxtjs/auth'
   ],
   /*
   ** Axios module configuration
@@ -64,8 +63,8 @@ export default {
   pwa: {
     manifest: {
       lang: 'de',
-      short_name: 'Katalog 2.0',
-      name: 'Libori Katalog 2.0',
+      short_name: 'HouseholdOrganizer 2.0',
+      name: 'HouseholdOrganizer 2.0',
       start_url: '/',
       display: 'standalone',
       theme_color: '#53abcb'
@@ -81,17 +80,14 @@ export default {
       dark: false,
       themes: {
         light: {
-          primary: '#53abcb',
-          primaryNeutral: '#6f9eaf',
-          primaryNeutralLight: '#cedee4',
-          primaryLight: '#91c4d7',
-          primaryNeutralDark: '#23373f',
-          complementary: '#db6b43',
-          complementaryNeutralDark: '#42281f',
-          complementaryLight: '#e19f87',
-          complementaryNeutralLight: '#e7d2cb',
-          complementaryNeutral: '#b87c66',
-          error: '#db6b43'
+          primary: colors.blue.lighten_50,
+          secondary: colors.green.lighten_40,
+          complementary: colors.red.lighten_40,
+          warning: colors.red.lighten_50,
+          error: colors.purple.base,
+          neutral: colors.grey.base,
+          info: colors.beige.darken_20,
+          action: colors.green.lighten_20
         }
       }
     }
@@ -103,9 +99,9 @@ export default {
           property: 'accessToken'
         },
         endpoints: {
-          login: { url: 'http://localhost/api/v1/auth/login', method: 'post', propertyName: 'accessToken' },
+          login: { url: '/api/v2/auth/login', method: 'post', propertyName: 'token' },
           logout: false,
-          user: false
+          user: { url: '/api/v2/auth/user', method: 'get', propertyName: false }
         }
       }
     },
@@ -116,16 +112,39 @@ export default {
       callback: false
     }
   },
+  i18n: {
+    lazy: true,
+    langDir: 'locales/',
+    strategy: 'no_prefix',
+    locales: [{
+      code: 'de',
+      name: 'Deutsch',
+      iso: 'de-DE',
+      file: 'de.json'
+    }],
+    defaultLocale: 'de',
+    fallbackLocale: 'de'
+  },
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    // eslint-disable-next-line no-empty-pattern
-    extend (config, {}) {
-      config.node = {
-        fs: 'empty'
+    transpile: ['vue-filter-date-format', 'vue-filter-date-parse'],
+    postcss: null,
+    loaders: {
+      css: {
+        modules: false
       }
+    },
+    extend (config, { isDev, isClient }) {
+      config.devtool = 'eval-cheap-source-map'
     }
+  },
+  publicRuntimeConfig: {
+    axios: {
+      baseURL: process.env.BASE_URL
+    },
+    imgBaseUrl: process.env.IMG_BASE_URL
   }
 }
