@@ -6,7 +6,7 @@
     :delimiters="delimiters"
     :items="items"
     counter="5"
-    :rules="[rules.tag]"
+    :rules="[rules.required]"
     outlined
     hint="Tags eingeben"
     label="Tags"
@@ -15,8 +15,7 @@
     dense
     small-chips
     deletable-chips
-    autofocus
-    @change="updateTags"
+    @input="updateTags()"
   />
 </template>
 
@@ -24,20 +23,30 @@
 
 export default {
   name: 'InputTags',
-
-  data: () => ({
-    search: null,
-    isLoading: false,
-    delimiters: [',', ' '],
-    tags: [],
-    items: [],
-    rules: {
-      tag: (value) => {
-        const pattern = /^[a-zA-Zß]*$/
-        return pattern.test(value) || 'In Tags sind nur Buchstaben erlaubt'
+  props: {
+    tagsInput: {
+      type: Array,
+      required: false,
+      default: () => { return [] }
+    }
+  },
+  data () {
+    return {
+      search: null,
+      isLoading: false,
+      delimiters: [',', ' '],
+      items: [],
+      tags: [],
+      rules: {
+        required: (value) => {
+          if (value.length < 1 && value.length > 5) {
+            return 'Bitte eingeben.'
+          }
+          return true
+        }
       }
     }
-  }),
+  },
 
   watch: {
     tags (val) {
@@ -60,6 +69,9 @@ export default {
             this.items = response.data
           })
       }
+    },
+    tagsInput () {
+      this.tags = this.tagsInput
     }
   },
 

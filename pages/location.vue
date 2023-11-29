@@ -113,7 +113,7 @@ export default {
         this.locations = getLocationResponse
       }
       const getRoomsResponse = await this.getRoomsRequest()
-      if (getLocationResponse) {
+      if (getRoomsResponse) {
         this.rooms = getRoomsResponse
       }
     },

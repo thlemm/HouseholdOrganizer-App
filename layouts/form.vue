@@ -1,7 +1,5 @@
 <template>
-  <v-app
-    id="inspire"
-  >
+  <v-app>
     <v-dialog
       v-model="dialog"
       max-width="290"
@@ -44,7 +42,7 @@
       <v-app-bar-nav-icon
         @click.stop="dialog = true"
       >
-        <v-icon>mdi-arrow-left</v-icon>
+        <v-icon>{{ mdiArrowLeft }}</v-icon>
       </v-app-bar-nav-icon>
 
       <v-toolbar-title />
@@ -54,6 +52,7 @@
       <v-btn
         text
         dark
+        :disabled="disabled"
         @click="checkForm"
       >
         Speichern
@@ -77,16 +76,23 @@
 </template>
 
 <script>
-
+import { mdiArrowLeft } from '@mdi/js'
 export default {
   data () {
     return {
-      dialog: false
+      mdiArrowLeft,
+      dialog: false,
+      disabled: true
     }
+  },
+  created () {
+    this.$nuxt.$on('form-input-complete', (val) => {
+      this.disabled = !val
+    })
   },
   methods: {
     closeForm () {
-      window.$nuxt.$router.replace('/')
+      this.$nuxt.$router.replace('/')
     },
     checkForm () {
       this.$nuxt.$emit('check-form')

@@ -1,222 +1,196 @@
 <template>
-  <v-layout
-    column
-    justify-center
-    align-center
-  >
-    <v-container
-      fluid
+  <v-container class="ma-0 pa-0">
+    <info-snackbar
+      :active="snackbar"
+      @click-action="snackbar = !snackbar"
     >
-      <v-dialog
-        v-model="dialog.upload"
-        persistent
-        width="290"
-      >
-        <v-card>
-          <v-card-title class="headline">
-            Speichern
-          </v-card-title>
-          <v-card-subtitle>
-            Einen Moment bitte...
-          </v-card-subtitle>
+      {{ feedbackMessage }}
+    </info-snackbar>
 
-          <v-card-text align="center">
-            Die Daten werden auf dem Server gespeichert.
-          </v-card-text>
-          <v-card-text align="center">
-            <v-progress-circular
-              :size="50"
-              color="primaryNeutral"
-              indeterminate
-            />
-          </v-card-text>
-        </v-card>
-      </v-dialog>
+    <v-dialog
+      v-model="dialog.upload"
+      persistent
+      width="290"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Speichern
+        </v-card-title>
+        <v-card-subtitle>
+          Einen Moment bitte...
+        </v-card-subtitle>
 
-      <v-dialog
-        v-model="dialog.next"
-        persistent
-        width="290"
-      >
-        <v-card>
-          <v-card-title class="headline">
-            Fertig
-          </v-card-title>
+        <v-card-text align="center">
+          Die Daten werden auf dem Server gespeichert.
+        </v-card-text>
+        <v-card-text align="center">
+          <v-progress-circular
+            :size="50"
+            color="primaryNeutral"
+            indeterminate
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
-          <v-list-item three-line>
-            <v-list-item-content>
-              <v-list-item-subtitle>Lagerort: <b>{{ input.room }}</b></v-list-item-subtitle>
-              <v-list-item-subtitle>Kiste/Regal: <b>{{ input.location }}</b></v-list-item-subtitle>
-              <v-list-item-subtitle>Nummer: <b>{{ thingId }}</b></v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
+    <v-dialog
+      v-model="dialog.next"
+      persistent
+      width="290"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Gespeichert als:
+        </v-card-title>
 
-          <v-divider />
+        <v-list-item three-line class="pl-6">
+          <v-list-item-content>
+            <v-list-item-subtitle>Lagerort: <b>{{ $t(item?.location?.room?.name) }}</b></v-list-item-subtitle>
+            <v-list-item-subtitle>Kiste/Regal: <b>{{ input?.location }}</b></v-list-item-subtitle>
+            <v-list-item-subtitle>Nummer: <b>{{ item?.mark }}</b></v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
 
-          <v-card-actions>
-            <v-btn
-              color="primary"
-              text
-              @click="toHome"
-            >
-              Home
-            </v-btn>
-            <v-spacer />
-            <v-btn
-              color="primary"
-              text
-              @click="newQuestion"
-            >
-              nächste sache
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+        <v-divider />
 
-      <v-form v-model="valid">
-        <v-select
-          v-model="input.room"
-          :rules="[rules.required]"
-          :items="rooms"
-          outlined
-          dense
-          label="Raum"
-        />
-
-        <v-select
-          v-model="input.type"
-          :rules="[rules.required]"
-          :items="types"
-          outlined
-          dense
-          label="Typ"
-        />
-
-        <v-combobox
-          v-model="input.tags"
-          :rules="[rules.required]"
-          :items="suggestions"
-          :delimiters="delimiters"
-          outlined
-          dense
-          label="Tags"
-          placeholder=""
-          multiple
-          small-chips
-          deletable-chips
-          autofocus
-        />
-        <v-row>
-          <v-col
-            cols="7"
-          >
-            <v-select
-              v-model="input.location"
-              :rules="[rules.required]"
-              :items="locations"
-              outlined
-              dense
-              label="Lagerort"
-            />
-          </v-col>
-          <v-col
-            cols="5"
-          >
-            <v-text-field
-              v-model="input.box_id"
-              :rules="[rules.required, rules.location]"
-              type="number"
-              outlined
-              dense
-              label="Nummer"
-            />
-          </v-col>
-        </v-row>
-
-        <label>
-          <div>
-            <p>
-              <v-icon
-                x-large
-                color="primary"
-              >
-                mdi-plus-box
-              </v-icon>
-              Foto hinzufügen</p>
-          </div>
-
-          <input
-            ref="fileInput"
-            class="file-input"
-            hidden
-            type="file"
-            accept="image/*"
-            capture="environment"
-            @change="onSelectFile"
-          >
-        </label>
-
-        <v-img
-          v-if="thumbnail !== undefined"
-          :src="thumbnail"
-          width="50%"
-          aspect-ratio="1"
-        />
-      </v-form>
-
-      <v-snackbar
-        v-model="snackbar"
-      >
-        {{ message }}
-
-        <template v-slot:action="{ attrs }">
+        <v-card-actions>
           <v-btn
-            color="complementary"
+            color="primary"
             text
-            v-bind="attrs"
-            @click="snackbar = false"
+            @click="toHome"
           >
-            OK
+            Home
           </v-btn>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            text
+            @click="newQuestion"
+          >
+            nächste sache
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-form v-model="isFormValid">
+      <v-select
+        v-model="input.originalRoom"
+        :rules="[rules.required]"
+        :items="rooms"
+        item-value="id"
+        outlined
+        dense
+        label="Raum"
+      >
+        <template #item="data">
+          {{ $t(data.item?.name) }}
         </template>
-      </v-snackbar>
-    </v-container>
-  </v-layout>
+        <template #selection="data">
+          {{ $t(data.item?.name) }}
+        </template>
+      </v-select>
+
+      <v-select
+        v-model="input.type"
+        :items="types"
+        :rules="[rules.required]"
+        item-value="id"
+        item-text="label"
+        outlined
+        dense
+        label="Typ"
+      >
+        <template #item="data">
+          {{ $t(data.item?.label) }}
+        </template>
+      </v-select>
+
+      <input-tags
+        v-model="input.tags"
+        :tags-input="input.tags"
+      />
+
+      <v-text-field
+        v-model.number="input.location"
+        :rules="[rules.required]"
+        type="number"
+        outlined
+        dense
+        label="Kiste/Regal"
+      />
+
+      <span>Bild:</span>
+      <label v-if="input.image === null">
+        <div>
+          <p>
+            <v-icon
+              x-large
+              color="primary"
+              class="mb-1"
+            >
+              {{ mdiPlusBox }}
+            </v-icon>
+            Foto hinzufügen</p>
+        </div>
+
+        <input
+          ref="fileInput"
+          class="file-input"
+          hidden
+          type="file"
+          accept="image/*"
+          capture="environment"
+          @change="onSelectFile"
+        >
+      </label>
+
+      <v-img
+        v-if="thumbnail !== undefined"
+        :src="thumbnail"
+        width="50%"
+        aspect-ratio="1"
+      />
+    </v-form>
+  </v-container>
 </template>
 
 <script>
+import { mdiPlusBox } from '@mdi/js'
+import InputTags from '~/components/input/input-tags'
+import InfoSnackbar from '~/components/feedback/info-snackbar'
 
 export default {
-  name: 'AddThing',
+  name: 'AddItem',
+  components: { InfoSnackbar, InputTags },
   layout: 'form',
 
   data () {
     return {
-      message: '',
+      mdiPlusBox,
+      item: null,
       snackbar: false,
-      valid: false,
-      rooms: ['Esszimmer', 'Wohnzimmer', 'Kueche', 'Hof', 'Arbeitszimmer', 'Schlafzimmer', 'Gruenes Zimmer', 'Lottozimmer', 'Liborizimmer I', 'Liborizimmer II', 'Bad', 'Toilette rosa', 'Toilette beige', 'Topfkammer', 'Diele EG', 'Diele 1. OG', 'Diele 2. OG', 'Zentralkeller', 'Waschkeller', 'Lagerkeller', 'Werkstatt', 'Suedbalkon', 'Nordbalkon'],
-      types: ['Dekoration', 'Technisches Geraet', 'Gebrauchsgegenstand', 'Moebelstueck', 'Einrichtungsgegenstand'],
-      locations: ['Keller', 'Hof', 'Gruenes Zimmer', 'Nach Bild'],
-      suggestions: [],
-      delimiters: [',', ' '],
-      thingId: null,
+      feedbackMessage: null,
+      isFormValid: false,
+      rooms: [],
+      types: [
+        { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
+        { id: 2, name: 'TYPE_FURNITURE', label: this.$t('TYPE_FURNITURE') },
+        { id: 3, name: 'TYPE_UTILITY_ITEM', label: this.$t('TYPE_UTILITY_ITEM') },
+        { id: 4, name: 'ROOM_TECHNICAL_DEVICE', label: this.$t('ROOM_TECHNICAL_DEVICE') },
+        { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
+      ],
       input: {
-        room: '',
-        type: '',
+        originalRoom: null,
+        type: null,
         tags: [],
-        location: '',
-        box_id: null,
-        picture: ''
+        location: undefined,
+        image: null
       },
       file: undefined,
       thumbnail: undefined,
       rules: {
-        required: (value) => { return !!value || 'Bitte eingeben.' },
-        location: (value) => {
-          const pattern = /^[0-9]*$/
-          return pattern.test(value) || 'Zahl eingeben.'
-        }
+        required: (value) => { return !!value || 'Bitte eingeben.' }
       },
       dialog: {
         upload: false,
@@ -225,71 +199,181 @@ export default {
     }
   },
 
+  watch: {
+    input: {
+      handler () {
+        if (
+          this.input.originalRoom !== null &&
+          this.input.type !== null &&
+          this.input.location !== null &&
+          this.input.tags.length > 0 &&
+          this.input.image !== null
+        ) {
+          this.$nuxt.$emit('form-input-complete', true)
+        } else {
+          this.$nuxt.$emit('form-input-complete', false)
+        }
+      },
+      deep: true
+    }
+  },
   beforeMount () {
-    this.toHome()
     if (!this.$auth.loggedIn) {
       this.$nuxt.$router.replace('/login?target=add')
     }
+    this.getData()
   },
 
   created () {
     this.$nuxt.$on('check-form', () => {
-      this.addThing()
-    })
-    this.$nuxt.$on('update-files', (file) => {
-      console.log(file)
-      if (file.size > 5000000) { // 5242880
-        console.log('bild zu groß')
-        // this.$nuxt.$emit('input-media-too-large')
-        return
-      }
-      this.file = file
-      this.input.picture = file.name
-      // this.$nuxt.$emit('input-media-image', this.input)
+      this.addItem()
     })
   },
   beforeDestroy () {
     this.$nuxt.$off('check-form')
-    this.$nuxt.$off('update-files')
   },
 
   methods: {
+    async getData () {
+      const getRoomsResponse = await this.getRoomsRequest()
+      if (getRoomsResponse) {
+        this.rooms = getRoomsResponse
+      }
+    },
+    getRoomsRequest () {
+      const url = '/api/v2/rooms'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.get(url, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
     toHome () {
       this.dialog.next = false
-      window.$nuxt.$router.replace('/')
+      this.$nuxt.$router.replace('/')
     },
     newQuestion () {
-      this.checkLogin()
       this.input = {
-        room: '',
-        type: '',
+        originalRoom: null,
+        type: null,
         tags: [],
-        location: '',
-        box_id: null,
-        picture: ''
+        location: undefined,
+        image: null
       }
       this.file = undefined
       this.thumbnail = undefined
-      this.thingId = null
+      this.itemId = null
+      this.mark = null
       this.dialog.next = false
-      // this.$nuxt.refresh()
-      // window.$nuxt.$router.replace('/add')
+    },
+    createFormData () {
+      if (this.file !== undefined) {
+        const formdata = new FormData()
+        formdata.append('file', this.file)
+        return formdata
+      } else {
+        return false
+      }
+    },
+    snackbarMessage (feedbackMessage) {
+      this.snackbar = true
+      this.feedbackMessage = feedbackMessage
+    },
+    async addItem () {
+      this.dialog.upload = true
+      const addItemResposnse = await this.addItemRequest()
+      if (this.input.name !== null) {
+        if (addItemResposnse) {
+          this.item = addItemResposnse
+          const uploadImageResposnse = await this.uploadImageRequest()
+          console.log(uploadImageResposnse)
+          if (uploadImageResposnse) {
+            this.dialog.upload = false
+            this.dialog.next = true
+          }
+        }
+      }
+      this.dialog.upload = false
+    },
+    addItemRequest () {
+      const url = '/api/v2/item'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.post(url, _this.input, config)
+          .then((response) => {
+            if (response.status === 201) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch((err) => {
+            if (err.message === 'Network Error') {
+              _this.snackbarMessage('Server nicht erreichbar')
+            } else {
+              _this.snackbarMessage('Unerwarteter Fehler')
+            }
+            resolve(false)
+          })
+      })
+    },
+    uploadImageRequest () {
+      const url = '/api/v2/upload/' + this.item.id
+      const formdata = this.createFormData()
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve, reject) {
+        _this.$axios.post(url, formdata, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch((err) => {
+            if (err.message === 'Network Error') {
+              _this.snackbarMessage('Server nicht erreichbar')
+            } else {
+              _this.snackbarMessage('Unerwarteter Fehler')
+            }
+            resolve(false)
+          })
+      })
     },
     onSelectFile (e) {
       let file = null
       if (e.target.files.length > 0) {
         file = e.target.files[0]
         const name = file.name
+        this.input.image = name
         console.log(file)
         const reader = new FileReader()
         reader.onload = (e) => {
           this.thumbnail = e.target.result
-          file = this.resizeImage(e.target.result, name)
+          this.resizeImage(e.target.result, name)
         }
         reader.readAsDataURL(file)
       }
     },
+    onClearFile () {
+      // ToDo: Add button to make thumbnail clearable
+      this.file = undefined
+      this.thumbnail = undefined
+    },
     resizeImage (file, name) {
+      const _this = this
       const img = new Image()
       img.src = file
       img.onload = function () {
@@ -305,7 +389,10 @@ export default {
         ctx.drawImage(img, 0, 0, width, height)
 
         const dataUrl = canvas.toDataURL('image/jpeg')
-        window.$nuxt.$emit('update-files', dataURItoBlob(dataUrl, name))
+
+        const fileBlob = dataURItoBlob(dataUrl, name)
+        _this.file = fileBlob
+        _this.input.image = fileBlob.name
 
         function dataURItoBlob (dataURI, name) {
           const byteString = atob(dataURI.split(',')[1])
@@ -318,144 +405,9 @@ export default {
           }
 
           const blob = new Blob([ab], { type: mimeString })
-          const file = new File([blob], name, { type: mimeString })
-          return file
+          return new File([blob], name, { type: mimeString })
         }
       }
-    },
-    onClearFile () {
-      this.file = undefined
-      this.thumbnail = undefined
-    },
-    createPaylod () {
-      let tags = ''
-      for (const tag of this.input.tags) {
-        tags += tag + ','
-      }
-      tags = tags.slice(0, -1)
-
-      return {
-        tags,
-        type: this.input.type,
-        room: this.input.room,
-        location: this.input.location,
-        box_id: this.input.box_id,
-        picture: this.input.picture
-      }
-    },
-    createFormData () {
-      if (this.file !== undefined) {
-        const formdata = new FormData()
-        formdata.append('file', this.file)
-        return formdata
-      } else {
-        return false
-      }
-    },
-    checkInput (input) {
-      if (input.room === '') {
-        this.showSnackbar('Bitte Raum auswählen.')
-        return false
-      }
-      if (input.typ === '') {
-        this.showSnackbar('Bitte Typ auswählen.')
-        return false
-      }
-      if (input.tags.length < 1) {
-        this.showSnackbar('Bitte füge Tags hinzu.')
-        return false
-      }
-      if (input.location === '') {
-        this.showSnackbar('Bitte Lagerort auswählen.')
-        return false
-      }
-      if (input.box_id === null) {
-        this.showSnackbar('Bitte Kiste/Regal angeben.')
-        return false
-      }
-      return true
-    },
-    showSnackbar (message) {
-      this.message = message
-      this.snackbar = true
-    },
-    async addThing () {
-      try {
-        if (this.checkInput(this.input)) {
-          this.dialog.upload = true
-          let response = await this.postThing()
-          if (response.data.message === 'success') {
-            this.thingId = response.data.thing_id
-            response = await this.uploadPicture()
-            console.log(response)
-            if (response.data.message === 'success') {
-              this.dialog.upload = false
-              this.dialog.next = true
-              // window.$nuxt.$router.replace('/')
-            }
-          }
-        }
-      } catch (err) {
-        if (err.message === 'Request Error') {
-          this.showSnackbar('Request Error')
-        } else if (err.message === 'Network Error') {
-          this.showSnackbar('Network Error')
-        } else if (err.message === 'Unknown Error') {
-          this.showSnackbar('Unknown Error')
-        } else {
-          this.showSnackbar('Unexpected Error')
-        }
-      }
-    },
-    postThing () {
-      const url = '/thing/create/'
-      const payload = this.createPaylod()
-      const config = { headers: { Authorization: this.$auth.getToken('local') } }
-      return new Promise(function (resolve, reject) {
-        window.$nuxt.$http.plain.post(url, payload, config)
-          .then((response) => {
-            if (response.status === 200) {
-              resolve(response)
-            } else {
-              resolve(false)
-            }
-          })
-          .catch((err) => {
-            const reports = window.localStorage.getItem('error-reports')
-            window.localStorage.setItem('error-reports', JSON.stringify(err) + ';' + reports)
-            console.log(JSON.stringify(err))
-            if (err.message === 'Network Error') {
-              return reject(Error('Network Error'))
-            } else {
-              return reject(Error('Unknown Error'))
-            }
-          })
-      })
-    },
-    uploadPicture () {
-      const url = '/file/upload/'
-      const formdata = this.createFormData()
-      const config = { headers: { Authorization: this.$auth.getToken('local') } }
-      return new Promise(function (resolve, reject) {
-        window.$nuxt.$http.files.post(url, formdata, config)
-          .then((response) => {
-            if (response.status === 200) {
-              resolve(response)
-            } else {
-              resolve(false)
-            }
-          })
-          .catch((err) => {
-            const reports = window.localStorage.getItem('error-reports')
-            window.localStorage.setItem('error-reports', JSON.stringify(err) + ';' + reports)
-            console.log(JSON.stringify(err))
-            if (err.message === 'Network Error') {
-              return reject(Error('Network Error'))
-            } else {
-              return reject(Error('Unknown Error'))
-            }
-          })
-      })
     }
   }
 }
