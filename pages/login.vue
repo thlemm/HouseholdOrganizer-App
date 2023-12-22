@@ -2,38 +2,18 @@
   <v-container
     fluid
   >
-    <v-dialog
-      v-model="dialog"
-      persistent
-      width="290"
+    <v-banner
+      dark
+      class="mb-4"
+      elevation="3"
+      :icon="mdiLogin"
+      color="primary"
     >
-      <v-card>
-        <v-card-title class="headline">
-          Erfolg!
-        </v-card-title>
-
-        <v-card-text>
-          Sie haben sich erfolgreich angemeldet.
-        </v-card-text>
-
-        <v-divider />
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="toTarget"
-          >
-            weiter
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
+      Anmelden
+    </v-banner>
     <v-form v-model="isFormValid">
       <v-row>
-        <v-col align="center">
+        <v-col>
           <v-alert
             :value="alert"
             outlined
@@ -58,7 +38,6 @@
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
             :rules="[rules.required]"
             :type="show ? 'text' : 'password'"
-            name="input-10-2"
             label="Passwort"
             outlined
             dense
@@ -66,8 +45,8 @@
           />
         </v-col>
       </v-row>
-      <v-row>
-        <v-col align="end">
+      <v-row no-gutters>
+        <v-col class="text-center">
           <v-btn
             :disabled="!isFormValid"
             :loading="loading"
@@ -83,6 +62,7 @@
 </template>
 
 <script>
+import { mdiLogin } from '@mdi/js'
 
 export default {
   name: 'UserLogin',
@@ -90,6 +70,7 @@ export default {
 
   data () {
     return {
+      mdiLogin,
       dialog: false,
       alert: false,
       message: '',
@@ -112,9 +93,6 @@ export default {
       setTimeout(() => (this.timeout()), 10000)
       this.loader = null
     }
-  },
-  mounted () {
-    console.log(this.$route.query.target)
   },
   methods: {
     timeout () {
@@ -142,7 +120,7 @@ export default {
         this.$auth.setUser(response.data)
         this.loading = false
         if (response.status === 200) {
-          this.dialog = true
+          this.toTarget()
         }
       } catch (err) {
         if (err.message === 'Network Error') {

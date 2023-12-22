@@ -14,7 +14,15 @@
 
           <v-list-item-content>
             <v-list-item-title>HouseholdOrganizer</v-list-item-title>
-            <v-list-item-subtitle>by thlemm</v-list-item-subtitle>
+            <v-list-item-subtitle>
+              <a
+                href="https://thlemm.de"
+                target="_blank"
+                style="color: #7ca5c9;"
+              >
+                by thlemm
+              </a>
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -49,6 +57,7 @@
         </v-list-item>
 
         <v-list-item
+          v-if="isFamily"
           link
           to="/rank"
           nuxt
@@ -58,6 +67,23 @@
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Sachen aussuchen</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          link
+          to="/casino"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon :color="colorCasino">
+              {{ mdiSlotMachine }}
+            </v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title :class="colorCasino + '--text'">
+              Angst Potter?
+            </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -89,64 +115,114 @@
           </v-list-item-content>
         </v-list-item>
 
+        <v-divider v-if="isAdmin" inset />
         <v-list-item
+          v-if="isAdmin"
           link
           to="/location"
           nuxt
         >
           <v-list-item-action>
-            <v-icon>{{ mdiArchiveEdit }}</v-icon>
+            <v-icon color="error">
+              {{ mdiArchiveEdit }}
+            </v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>Lagerorte verwalten</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
-        <!--         <v-divider v-if="this.$auth.user.username === 'Thomas'" inset />
         <v-list-item
-          v-if="this.$auth.user.username === 'Thomas'"
+          v-if="isAdmin"
           link
-          to="/admin"
+          to="/users"
           nuxt
         >
           <v-list-item-action>
-            <v-icon>mdi-account-search</v-icon>
+            <v-icon color="error">
+              {{ mdiAccountEdit }}
+            </v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Benutzersuche</v-list-item-title>
+            <v-list-item-title>Benutzer verwalten</v-list-item-title>
           </v-list-item-content>
-        </v-list-item> -->
+        </v-list-item>
+
+        <v-list-item
+          v-if="isAdmin"
+          link
+          to="/transaction"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon color="error">
+              {{ mdiTagEdit }}
+            </v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Transaktionen verwalten</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          v-if="isAdmin"
+          link
+          to="/interests"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon color="error">
+              {{ mdiHeartSearch }}
+            </v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Alle Interessen</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
         <v-divider inset />
-        <client-only>
-          <v-list-item
-            v-if="$auth.loggedIn"
-            link
-            to="/logout"
-            nuxt
-          >
-            <v-list-item-action>
-              <v-icon>{{ mdiLogout }}</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Abmelden</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
 
-          <v-list-item
-            v-if="!$auth.loggedIn"
-            link
-            to="/login"
-            nuxt
-          >
-            <v-list-item-action>
-              <v-icon>{{ mdiLogin }}</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Anmelden</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </client-only>
+        <v-list-item
+          v-if="isLoggedIn"
+          link
+          to="/logout"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon>{{ mdiLogout }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Abmelden</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          v-if="!isLoggedIn"
+          link
+          to="/login"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon>{{ mdiLogin }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Anmelden</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          v-if="!isLoggedIn"
+          link
+          to="/signup"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon>{{ mdiAccountPlus }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Registrieren</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
         <v-divider inset />
 
@@ -190,7 +266,10 @@
       dark
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>HouseholdOrganizer</v-toolbar-title>
+      <v-spacer />
+      <v-app-bar-title>HouseholdOrganizer</v-app-bar-title>
+      <v-spacer />
+      <v-icon>{{ accountIcon }}</v-icon>
     </v-app-bar>
 
     <v-main>
@@ -206,13 +285,34 @@
       color="primary"
       app
     >
-      <span class="white--text">HouseholdOrganizer</span>
+      <span class="white--text flex text-center">HouseholdOrganizer</span>
     </v-footer>
   </v-app>
 </template>
 
 <script>
-import { mdiHome, mdiHeart, mdiThumbsUpDown, mdiMagnify, mdiArchiveSearch, mdiArchiveEdit, mdiLogin, mdiLogout, mdiCog, mdiPlusCircle } from '@mdi/js'
+import {
+  mdiHome,
+  mdiHeart,
+  mdiThumbsUpDown,
+  mdiMagnify,
+  mdiArchiveSearch,
+  mdiArchiveEdit,
+  mdiLogin,
+  mdiLogout,
+  mdiCog,
+  mdiPlusCircle,
+  mdiAccount,
+  mdiAccountOff,
+  mdiAccountCowboyHat,
+  // eslint-disable-next-line import/named
+  mdiHeartSearch,
+  mdiAccountEdit,
+  // eslint-disable-next-line import/named
+  mdiTagEdit,
+  mdiSlotMachine,
+  mdiAccountPlus
+} from '@mdi/js'
 export default {
   data () {
     return {
@@ -226,7 +326,68 @@ export default {
       mdiLogin,
       mdiLogout,
       mdiCog,
-      mdiPlusCircle
+      mdiPlusCircle,
+      mdiAccount,
+      mdiAccountOff,
+      mdiAccountCowboyHat,
+      mdiHeartSearch,
+      mdiAccountEdit,
+      mdiTagEdit,
+      mdiSlotMachine,
+      mdiAccountPlus,
+      colorCasino: 'warning'
+    }
+  },
+  computed: {
+    accountIcon () {
+      if (this.isLoggedIn) {
+        if (this.isAdmin) {
+          return mdiAccountCowboyHat
+        }
+        return mdiAccount
+      }
+      return mdiAccountOff
+    },
+    isLoggedIn () {
+      return !!this.$auth.loggedIn
+    },
+    isAdmin () {
+      if (this.isLoggedIn) {
+        if (this.$auth.user.roles.includes('ROLE_ADMIN')) {
+          return true
+        }
+      }
+      return false
+    },
+    isFamily () {
+      if (this.isLoggedIn) {
+        if (this.$auth.user.roles.includes('ROLE_FAMILY')) {
+          return true
+        }
+      }
+      return false
+    }
+  },
+  mounted () {
+    this.changeCasinoColor()
+  },
+  methods: {
+    changeCasinoColor () {
+      setTimeout(() => (this.colorCasino = 'primary'), 1000)
+      setTimeout(() => (this.colorCasino = 'warning'), 2000)
+      setTimeout(() => (this.colorCasino = 'secondary'), 3000)
+      setTimeout(() => (this.colorCasino = 'info'), 4000)
+      setTimeout(() => (this.colorCasino = 'error'), 5000)
+      setTimeout(() => (this.changeCasinoColor()), 5000)
+    },
+    selectAccountIcon () {
+      if (this.$auth.loggedIn) {
+        if (this.$auth.user.roles.includes('ROLE_ADMIN')) {
+          return mdiAccountCowboyHat
+        }
+        return mdiAccount
+      }
+      return mdiAccountOff
     }
   }
 }

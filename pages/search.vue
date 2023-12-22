@@ -49,7 +49,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col align="end">
+        <v-col class="text-center">
           <v-btn
             :disabled="loading"
             color="secondary"

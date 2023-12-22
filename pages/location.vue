@@ -59,8 +59,8 @@
           </v-select>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col>
+      <v-row no-gutters>
+        <v-col class="text-center">
           <v-btn
             :disabled="loading"
             color="secondary"

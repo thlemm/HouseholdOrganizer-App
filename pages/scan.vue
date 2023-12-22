@@ -29,18 +29,19 @@
           >
             <v-text-field
               v-model="input.location"
-              class="mt-5"
+              class="mt-4 mb-2"
               :rules="[rules.required, rules.location]"
               type="number"
               outlined
               dense
               label="Nummer"
+              hide-details
             />
           </v-col>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col>
+      <v-row no-gutters>
+        <v-col class="text-center">
           <v-btn
             :disabled="!isFormValid || loading"
             color="secondary"

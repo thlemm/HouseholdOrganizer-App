@@ -1,7 +1,9 @@
 <template>
   <v-card
     v-ripple="false"
-    class="mt-2"
+    :class="customClass"
+    :elevation="elevation"
+    :color="color"
   >
     <v-list-item two-line @click="show = !show">
       <v-list-item-avatar
@@ -156,6 +158,21 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    elevation: {
+      type: Number,
+      required: false,
+      default: 2
+    },
+    customClass: {
+      type: String,
+      required: false,
+      default: 'mt-2'
+    },
+    color: {
+      type: String,
+      required: false,
+      default: '#FFFFFF'
     }
   },
   data () {
@@ -174,6 +191,15 @@ export default {
   },
 
   computed: {
+    isLoggedIn () {
+      return !!this.$auth.loggedIn
+    },
+    username () {
+      if (this.isLoggedIn) {
+        return this.$auth.user.username.replace('&', ' & ')
+      }
+      return false
+    },
     filteredInterests () {
       // eslint-disable-next-line no-return-assign
       return this.item.interests.filter(interest => interest.user.username !== this.username)
@@ -182,9 +208,6 @@ export default {
       const ownInterest = this.item.interests.filter(interest => interest.user.username === this.username)
       return ownInterest[0]
     }
-  },
-  beforeMount () {
-    this.username = this.$auth.user.username
   }
 }
 </script>
