@@ -104,12 +104,13 @@ export default {
       alert: false,
       message: '',
       loading: false,
+      // ToDo: replace this request to get all types
       types: [
         { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
         { id: 2, name: 'TYPE_FURNITURE', label: this.$t('TYPE_FURNITURE') },
         { id: 3, name: 'TYPE_UTILITY_ITEM', label: this.$t('TYPE_UTILITY_ITEM') },
-        { id: 4, name: 'ROOM_TECHNICAL_DEVICE', label: this.$t('ROOM_TECHNICAL_DEVICE') },
-        { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
+        { id: 4, name: 'TYPE_TECHNICAL_DEVICE', label: this.$t('TYPE_TECHNICAL_DEVICE') },
+        { id: 5, name: 'TYPE_FURNISHING', label: this.$t('TYPE_FURNISHING') }
       ],
       input: {
         mark: null,

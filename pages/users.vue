@@ -13,7 +13,7 @@
       class="mb-2"
       elevation="3"
       :icon="mdiAccountEdit"
-      color="primary"
+      color="error"
     >
       Benutzer bearbeiten
     </v-banner>
@@ -35,19 +35,18 @@
             dense
             return-object
             label="Benutzer"
+            @change="setCurrentRoles"
           />
           <v-select
             v-model="input.roles"
             :items="roles"
             item-value="id"
-            item-text="name"
+            item-text="label"
             outlined
             dense
             label="Rollen"
             multiple
           />
-          {{ input.roles }}
-          {{ currentRoles }}
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -87,18 +86,6 @@ export default {
       }
     }
   },
-  computed: {
-    currentRoles () {
-      console.log('updating current roles')
-      const roles = []
-      for (const role in this.input.user?.roles) {
-        console.log(role)
-        console.log(role.id)
-        roles.push(role.id)
-      }
-      return roles
-    }
-  },
   beforeMount () {
     if (!this.$auth.loggedIn) {
       this.$nuxt.$router.replace('/login?target=users')
@@ -109,6 +96,16 @@ export default {
     this.getRolesAndUsers()
   },
   methods: {
+    setCurrentRoles () {
+      const roles = []
+      if (!this.input.user) {
+        return
+      }
+      for (const role of this.input.user?.roles) {
+        roles.push(role.id)
+      }
+      this.input.roles = roles
+    },
     async getRolesAndUsers () {
       const getUsersResponse = await this.getUsersRequest()
       if (getUsersResponse) {
@@ -116,11 +113,28 @@ export default {
       }
       const getRolesResponse = await this.getRolesRequest()
       if (getRolesResponse) {
-        this.roles = getRolesResponse
+        this.roles = this.createLabeledRoles(getRolesResponse)
       }
     },
-    updateUserRoles () {
-      // ToDo
+    createLabeledRoles (roles) {
+      const labeledRoles = []
+      for (const role of roles) {
+        labeledRoles.push({
+          id: role.id,
+          name: role.name,
+          label: this.$t(role.name)
+        })
+      }
+      return labeledRoles
+    },
+    async updateUserRoles () {
+      this.loading = true
+      setTimeout(() => (this.loading = false), 10000)
+      const postUserRolesResponse = await this.postUserRolesRequest()
+      if (postUserRolesResponse) {
+        await this.getRolesAndUsers()
+        this.loading = false
+      }
     },
     getUsersRequest () {
       const url = '/api/v2/auth/users'
@@ -146,6 +160,28 @@ export default {
       const _this = this
       return new Promise(function (resolve) {
         _this.$axios.get(url, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
+    postUserRolesRequest () {
+      const url = '/api/v2/auth/user/roles'
+      const data = {
+        userId: this.input.user.id,
+        roleIds: this.input.roles
+      }
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.post(url, data, config)
           .then((response) => {
             if (response.status === 200) {
               resolve(response.data)

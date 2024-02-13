@@ -29,7 +29,7 @@
           <v-icon left small>
             {{ mdiFloorPlan }}
           </v-icon>
-          {{ $t(item.originalRoom.name) }}
+          {{ $t(item.originalRoom?.name) }}
         </v-list-item-subtitle>
         <v-list-item-subtitle>
           <v-icon left small>
@@ -39,24 +39,14 @@
         </v-list-item-subtitle>
         <v-list-item-subtitle>
           <v-icon left small>
-            {{ item.interests.length > 0 ? (filterInterests && filteredInterests.length === 0 ? mdiAccountCheck : mdiAccountAlert) : '' }}
+            {{ mdiRoutes }}
           </v-icon>
           <v-chip
-            v-for="interest in filterInterests ? filteredInterests : item.interests"
-            :key="interest.id"
             class="mr-1"
-            color="warning"
+            :color="statusColor"
             x-small
           >
-            {{ interest.user.username }}
-          </v-chip>
-          <v-chip
-            v-if="filterInterests && filteredInterests.length === 0"
-            class="mr-1"
-            color="secondary"
-            x-small
-          >
-            Keine Interessenten
+            {{ $t(item.transaction.transactionStatus.name) }}
           </v-chip>
         </v-list-item-subtitle>
       </v-list-item-content>
@@ -67,7 +57,7 @@
         <v-list-item>
           <v-list-item-content class="mx-0">
             <v-list-item-subtitle class="font-weight-black">
-              Lagerort
+              Lagerort:
             </v-list-item-subtitle>
             <v-list-item-subtitle class="body-1">
               <v-icon left small class="mr-0">
@@ -87,6 +77,35 @@
               </v-icon>
               Teilenummer: {{ item.mark }}
             </v-list-item-subtitle>
+            <v-list-item-subtitle
+              v-if="item.interests.length > 0"
+              class="mt-2 font-weight-black"
+            >
+              Interessenten:
+            </v-list-item-subtitle>
+            <v-list-item-subtitle v-if="item.interests.length > 0">
+              <v-icon left small>
+                {{ item.interests.length > 0 ? (filterInterests && filteredInterests.length === 0 ? mdiAccountCheck : mdiAccountAlert) : '' }}
+              </v-icon>
+              <v-chip
+                v-for="interest in filterInterests ? filteredInterests : item.interests"
+                :key="interest.id"
+                class="mr-1"
+                color="primary"
+                x-small
+              >
+                {{ interest.user.username }}
+              </v-chip>
+              <v-chip
+                v-if="item.interests.length > 0 ? (filterInterests && filteredInterests.length === 0) : false"
+                :key="interest.id"
+                class="mr-1"
+                color="primary"
+                x-small
+              >
+                keine anderen Interessenten
+              </v-chip>
+            </v-list-item-subtitle>
             <v-list-item-subtitle class="mt-2 font-weight-black">
               Schlagworte:
             </v-list-item-subtitle>
@@ -102,6 +121,43 @@
               </v-chip>
             </v-list-item-subtitle>
             <v-list-item-subtitle
+              v-if="[1,2].includes(item.transaction.transactionStatus.id)"
+              class="mt-2 font-weight-black"
+            >
+              Preis:
+            </v-list-item-subtitle>
+            <v-list-item-subtitle
+              v-if="item.transaction.transactionStatus.id === 1"
+              class="body-2 pb-1"
+            >
+              <v-chip
+                v-if="item.transaction.priceMin > 0 || item.transaction.priceMax > 0"
+                small
+                color="secondary"
+              >
+                {{ (item.transaction.priceMin / 100).toFixed(2) }} - {{ (item.transaction.priceMax / 100).toFixed(2) }} €
+              </v-chip>
+              <v-chip
+                v-else
+                small
+                color="secondary"
+              >
+                nicht angegeben
+              </v-chip>
+            </v-list-item-subtitle>
+            <v-list-item-subtitle
+              v-if="item.transaction.transactionStatus.id === 2"
+              class="body-2 pb-1"
+            >
+              <v-chip
+                small
+                color="warning"
+              >
+                {{ (item.transaction.priceSold / 100).toFixed(2) }} €
+              </v-chip>
+            </v-list-item-subtitle>
+
+            <v-list-item-subtitle
               class="mt-2 font-weight-black"
             >
               Aktionen:
@@ -111,13 +167,20 @@
             >
               <action-update-location
                 :item-id="item.id"
+                :disabled="[2,4,5].includes(item.transaction.transactionStatus.id)"
                 @update-location="$emit('reload-data')"
+              />
+              <action-update-transaction
+                v-if="isAdmin"
+                :item="item"
+                @update-transaction="$emit('reload-data')"
               />
               <action-toggle-interest
                 v-if="actionToggleInterest"
                 :interest-id="ownInterest?.id"
                 :is-interested="ownInterest?.interested"
                 :item-id="item.id"
+                :disabled="[2,4,5].includes(item.transaction.transactionStatus.id)"
                 @update-interest="$emit('reload-data')"
               />
             </v-list-item-subtitle>
@@ -137,13 +200,14 @@
 </template>
 
 <script>
-import { mdiMapMarker, mdiViewList, mdiAccountAlert, mdiAccountCheck, mdiArchive, mdiTagText, mdiFloorPlan, mdiHeart } from '@mdi/js'
+import { mdiMapMarker, mdiViewList, mdiAccountAlert, mdiAccountCheck, mdiArchive, mdiTagText, mdiFloorPlan, mdiHeart, mdiRoutes } from '@mdi/js'
 import ActionToggleInterest from '~/components/action/action-toggle-interest'
 import ActionUpdateLocation from '~/components/action/action-update-location'
+import ActionUpdateTransaction from '~/components/action/action-update-transaction'
 
 export default {
   name: 'ItemCard',
-  components: { ActionUpdateLocation, ActionToggleInterest },
+  components: { ActionUpdateTransaction, ActionUpdateLocation, ActionToggleInterest },
   props: {
     item: {
       type: Object,
@@ -185,6 +249,7 @@ export default {
       mdiTagText,
       mdiFloorPlan,
       mdiHeart,
+      mdiRoutes,
       imgBaseUrl: this.$config.imgBaseUrl,
       show: false
     }
@@ -193,6 +258,14 @@ export default {
   computed: {
     isLoggedIn () {
       return !!this.$auth.loggedIn
+    },
+    isAdmin () {
+      if (this.isLoggedIn) {
+        if (this.$auth.user.roles.includes('ROLE_ADMIN')) {
+          return true
+        }
+      }
+      return false
     },
     username () {
       if (this.isLoggedIn) {
@@ -207,6 +280,15 @@ export default {
     ownInterest () {
       const ownInterest = this.item.interests.filter(interest => interest.user.username === this.username)
       return ownInterest[0]
+    },
+    statusColor () {
+      if ([1].includes(this.item?.transaction?.transactionStatus?.id)) {
+        return 'secondary'
+      }
+      if ([7, 6].includes(this.item?.transaction?.transactionStatus?.id)) {
+        return 'primary'
+      }
+      return 'warning'
     }
   }
 }

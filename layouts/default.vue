@@ -116,10 +116,11 @@
         </v-list-item>
 
         <v-divider v-if="isAdmin" inset />
+
         <v-list-item
           v-if="isAdmin"
           link
-          to="/location"
+          to="/locations"
           nuxt
         >
           <v-list-item-action>
@@ -149,9 +150,9 @@
         </v-list-item>
 
         <v-list-item
-          v-if="isAdmin"
+          v-if="false"
           link
-          to="/transaction"
+          to="/transactions"
           nuxt
         >
           <v-list-item-action>
@@ -311,7 +312,8 @@ import {
   // eslint-disable-next-line import/named
   mdiTagEdit,
   mdiSlotMachine,
-  mdiAccountPlus
+  mdiAccountPlus,
+  mdiArchivePlus
 } from '@mdi/js'
 export default {
   data () {
@@ -335,7 +337,8 @@ export default {
       mdiTagEdit,
       mdiSlotMachine,
       mdiAccountPlus,
-      colorCasino: 'warning'
+      colorCasino: 'warning',
+      mdiArchivePlus
     }
   },
   computed: {

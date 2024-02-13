@@ -143,8 +143,8 @@ export default {
   },
   publicRuntimeConfig: {
     axios: {
-      baseURL: process.env.BASE_URL
+      baseURL: process.env.BASE_URL || 'http://localhost:8081'
     },
-    imgBaseUrl: process.env.IMG_BASE_URL
+    imgBaseUrl: process.env.IMG_BASE_URL || '/2023-11-13_images_backup/'
   }
 }
