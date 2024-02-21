@@ -24,6 +24,7 @@
         <item-card
           :item="item"
           :action-toggle-interest="true"
+          :action-update-location="true"
           :filter-interests="false"
           @reload-item="reloadItem($event)"
         />

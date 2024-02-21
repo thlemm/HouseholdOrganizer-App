@@ -1,5 +1,6 @@
 <template>
   <v-container
+    v-if="!showItem"
     fluid
     class="text-center"
   >
@@ -60,15 +61,29 @@
                 <v-btn
                   v-if="startAnimationButtonVisible"
                   fab
-                  large
+                  x-large
+                  color="warning"
                   @click="startAnimation()"
                 >
-                  Start
+                  Los
                 </v-btn>
               </v-progress-circular>
             </v-progress-circular>
           </v-progress-circular>
         </v-progress-circular>
+      </v-col>
+    </v-row>
+  </v-container>
+  <v-container v-else>
+    <v-row no-gutters>
+      <v-col>
+        <item-card
+          :item="item"
+          :elevation="0"
+          custom-class="mt-0"
+          color="#F2F3D9"
+          :show-details="true"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -88,23 +103,41 @@ export default {
       code: undefined,
       codeInputDisabled: false,
       codeInputCheckInProgress: false,
-      startAnimationButtonVisible: false
+      startAnimationButtonVisible: false,
+      item: undefined,
+      showItem: false
     }
   },
 
   methods: {
-    onFinishCodeInput () {
+    async onFinishCodeInput () {
       this.codeInputDisabled = true
       this.codeInputCheckInProgress = true
-      console.log(this.code)
-      setTimeout(() => (this.startAnimationButtonVisible = true), 2000)
-      setTimeout(() => (this.codeInputCheckInProgress = false), 2000)
+
+      const checkCasinoCodeResponse = await this.checkCasinoCodeRequest()
+      if (checkCasinoCodeResponse) {
+        if (checkCasinoCodeResponse.message === 'true') {
+          this.startAnimationButtonVisible = true
+        }
+      } else {
+        this.codeInputDisabled = false
+      }
+      this.codeInputCheckInProgress = false
+    },
+    async getCasinoItem () {
+      const getCasinoItemResponse = await this.getCasinoItemRequest()
+      if (getCasinoItemResponse) {
+        this.item = getCasinoItemResponse
+        setTimeout(() => (this.run = false), 5000)
+        setTimeout(() => (this.showItem = true), 5000)
+      }
     },
     startAnimation () {
       this.startAnimationButtonVisible = false
       this.run = true
       this.changeAnimationColors(0)
-      setTimeout(() => (this.run = false), 5000)
+      this.getCasinoItem()
+      // setTimeout(() => (this.run = false), 5000)
     },
     changeAnimationColors (i) {
       this.color_1 = this.colors[this.normalizeIndex(i)]
@@ -122,6 +155,44 @@ export default {
     },
     normalizeIndex (i) {
       return i < 4 ? i : (i - 4)
+    },
+    checkCasinoCodeRequest () {
+      const url = '/api/v2/code/check'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const payload = { code: this.code }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.post(url, payload, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
+    getCasinoItemRequest () {
+      const url = '/api/v2/item/casino'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const payload = { code: this.code }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.post(url, payload, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
     }
   }
 }

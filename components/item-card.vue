@@ -165,6 +165,7 @@
               class="body-2 pb-1"
             >
               <action-update-location
+                v-if="actionUpdateLocation"
                 :item-id="item.id"
                 :disabled="[2,4,5].includes(item.transaction.transactionStatus.id)"
                 @update-location="$emit('reload-item', item.id)"
@@ -222,6 +223,11 @@ export default {
       required: false,
       default: false
     },
+    actionUpdateLocation: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     elevation: {
       type: Number,
       required: false,
@@ -236,6 +242,11 @@ export default {
       type: String,
       required: false,
       default: '#FFFFFF'
+    },
+    showDetails: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {
@@ -250,7 +261,7 @@ export default {
       mdiHeart,
       mdiRoutes,
       imgBaseUrl: this.$config.imgBaseUrl,
-      show: false
+      show: this.showDetails
     }
   },
 
