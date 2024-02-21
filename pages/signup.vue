@@ -160,6 +160,11 @@ export default {
       this.loader = null
     }
   },
+  beforeMount () {
+    if (!this.$auth.loggedIn) {
+      this.$nuxt.$router.replace('/login?target=signup')
+    }
+  },
   methods: {
     timeout () {
       if (this.loading) {

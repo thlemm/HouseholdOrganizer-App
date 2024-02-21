@@ -44,6 +44,7 @@
         </v-list-item>
 
         <v-list-item
+          v-if="isLoggedIn"
           link
           to="/myitems"
           nuxt
@@ -90,6 +91,7 @@
         <v-divider inset />
 
         <v-list-item
+          v-if="isLoggedIn"
           link
           to="/search"
           nuxt
@@ -103,6 +105,7 @@
         </v-list-item>
 
         <v-list-item
+          v-if="isLoggedIn"
           link
           to="/scan"
           nuxt
@@ -181,6 +184,22 @@
           </v-list-item-content>
         </v-list-item>
 
+        <v-list-item
+          v-if="isAdmin"
+          link
+          to="/code"
+          nuxt
+        >
+          <v-list-item-action>
+            <v-icon color="error">
+              {{ mdiCashPlus }}
+            </v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Casino-Code erstellen</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
         <v-divider inset />
 
         <v-list-item
@@ -212,7 +231,7 @@
         </v-list-item>
 
         <v-list-item
-          v-if="!isLoggedIn"
+          v-if="isLoggedIn"
           link
           to="/signup"
           nuxt
@@ -221,7 +240,7 @@
             <v-icon>{{ mdiAccountPlus }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Registrieren</v-list-item-title>
+            <v-list-item-title>Nutzer erstellen</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -243,6 +262,7 @@
         <v-divider inset />
 
         <v-list-item
+          v-if="isLoggedIn"
           link
           to="/add"
           nuxt
@@ -313,7 +333,8 @@ import {
   mdiTagEdit,
   mdiSlotMachine,
   mdiAccountPlus,
-  mdiArchivePlus
+  mdiArchivePlus,
+  mdiCashPlus
 } from '@mdi/js'
 export default {
   data () {
@@ -337,6 +358,7 @@ export default {
       mdiTagEdit,
       mdiSlotMachine,
       mdiAccountPlus,
+      mdiCashPlus,
       colorCasino: 'warning',
       mdiArchivePlus
     }

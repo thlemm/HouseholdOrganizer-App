@@ -15,6 +15,7 @@
     dense
     small-chips
     deletable-chips
+    :disabled="disabled"
     @input="updateTags()"
   />
 </template>
@@ -28,6 +29,11 @@ export default {
       type: Array,
       required: false,
       default: () => { return [] }
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {

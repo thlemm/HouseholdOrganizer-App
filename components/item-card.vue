@@ -11,7 +11,7 @@
         size="80"
         color="grey"
       >
-        <v-img :src="imgBaseUrl + item.image" />
+        <v-img :src="imgBaseUrl + addSuffixToImage(item.image, '_small')" />
       </v-list-item-avatar>
       <v-list-item-content class="mx-0">
         <v-list-item-title class="title">
@@ -98,7 +98,6 @@
               </v-chip>
               <v-chip
                 v-if="item.interests.length > 0 ? (filterInterests && filteredInterests.length === 0) : false"
-                :key="interest.id"
                 class="mr-1"
                 color="primary"
                 x-small
@@ -168,12 +167,12 @@
               <action-update-location
                 :item-id="item.id"
                 :disabled="[2,4,5].includes(item.transaction.transactionStatus.id)"
-                @update-location="$emit('reload-data')"
+                @update-location="$emit('reload-item', item.id)"
               />
               <action-update-transaction
                 v-if="isAdmin"
                 :item="item"
-                @update-transaction="$emit('reload-data')"
+                @update-transaction="$emit('reload-item', item.id)"
               />
               <action-toggle-interest
                 v-if="actionToggleInterest"
@@ -181,14 +180,14 @@
                 :is-interested="ownInterest?.interested"
                 :item-id="item.id"
                 :disabled="[2,4,5].includes(item.transaction.transactionStatus.id)"
-                @update-interest="$emit('reload-data')"
+                @update-interest="$emit('reload-item', item.id)"
               />
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
         <v-card-text class="pt-0">
           <v-img
-            :src="imgBaseUrl + item.image"
+            :src="imgBaseUrl + addSuffixToImage(item.image, '_medium')"
             width="100%"
             style="max-width: 500px; "
             aspect-ratio="1"
@@ -289,6 +288,19 @@ export default {
         return 'primary'
       }
       return 'warning'
+    }
+  },
+  methods: {
+    addSuffixToImage (image, suffix) {
+      const parts = image.split('.')
+      // Check if the filename has an extension
+      if (parts.length > 1) {
+        const extension = parts.pop() // Remove the extension from the array
+        return `${parts.join('.')}${suffix}.${extension}`
+      } else {
+        // If there's no extension, just add the suffix
+        return `${image}_small`
+      }
     }
   }
 }

@@ -19,7 +19,7 @@
       </v-row>
       <v-row>
         <v-col>
-          <item-of-the-day-card />
+          <item-of-the-day-card v-if="isLoggedIn" />
         </v-col>
       </v-row>
       <v-row>
@@ -52,6 +52,12 @@ export default {
   data () {
     return {
 
+    }
+  },
+
+  computed: {
+    isLoggedIn () {
+      return !!this.$auth.loggedIn
     }
   },
 

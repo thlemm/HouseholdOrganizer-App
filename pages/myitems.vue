@@ -27,28 +27,13 @@
         title="Nichts gefunden"
         subtitle="Hier werden die Sachen angezeigt, die mit deinem Account verknüpft sind."
       />
-      <loading-animation
-        v-if="loading"
-        color="secondary"
+      <info-card-loader
+        :lazy="lazy"
+        :items="items"
+        :loading="loading"
+        @loaded-items="loading = false"
+        @reloaded-item="replaceReloadedItem($event)"
       />
-      <div v-if="lazy">
-        <v-lazy
-          v-for="(item, i) in items"
-          :key="i"
-          :options="{
-            threshold: .5
-          }"
-          class="fill-height"
-          transition="fade-transition"
-          @input="countLoadingEvents()"
-        >
-          <item-card
-            :item="item"
-            :action-toggle-interest="true"
-            @reload-data="getData"
-          />
-        </v-lazy>
-      </div>
     </v-container>
   </v-layout>
 </template>
@@ -56,11 +41,10 @@
 <script>
 import { mdiHeart } from '@mdi/js'
 import InfoSnackbar from '~/components/feedback/info-snackbar'
-import LoadingAnimation from '~/components/feedback/loading-animation'
 
 export default {
   name: 'MyStuff',
-  components: { LoadingAnimation, InfoSnackbar },
+  components: { InfoSnackbar },
   layout: 'default',
 
   data () {
@@ -73,8 +57,6 @@ export default {
       snackbar: false,
       feedbackMessage: null,
       loading: false,
-      eventsCounter: 0,
-      eventLimit: 0,
       lazy: true
     }
   },
@@ -85,10 +67,10 @@ export default {
     this.getData()
   },
   methods: {
-    countLoadingEvents () {
-      this.eventsCounter += 1
-      if (this.eventsCounter === this.eventLimit) {
-        this.loading = false
+    replaceReloadedItem (item) {
+      const index = this.items.findIndex(obj => obj.id === item.id)
+      if (index !== -1) {
+        this.$set(this.items, index, item)
       }
     },
     handleError (feedbackMessage) {

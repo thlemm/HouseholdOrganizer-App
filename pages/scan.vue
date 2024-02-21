@@ -54,39 +54,23 @@
     </v-form>
     <v-divider class="mt-3 mb-0" />
     <span class="mt-0 pt-0 mb-5 grey--text">{{ items.length }} Ergebnisse gefunden:</span>
-    <loading-animation
-      v-if="loading"
-      color="secondary"
+    <info-card-loader
+      :lazy="lazy"
+      :items="items"
+      :loading="loading"
+      @loaded-items="loading = false"
+      @reloaded-item="replaceReloadedItem($event)"
     />
-    <div v-if="lazy">
-      <v-lazy
-        v-for="(item, i) in items"
-        :key="i"
-        :options="{
-          threshold: .5
-        }"
-        class="fill-height"
-        transition="fade-transition"
-        @input="countLoadingEvents()"
-      >
-        <item-card
-          :item="item"
-          :action-toggle-interest="true"
-          :filter-interests="false"
-          @reload-data="scan"
-        />
-      </v-lazy>
-    </div>
   </v-container>
 </template>
 
 <script>
 import { mdiArchiveSearch } from '@mdi/js'
 import InfoSnackbar from '~/components/feedback/info-snackbar'
-import LoadingAnimation from '~/components/feedback/loading-animation'
+
 export default {
   name: 'Scan',
-  components: { LoadingAnimation, InfoSnackbar },
+  components: { InfoSnackbar },
   layout: 'default',
 
   data () {
@@ -110,8 +94,6 @@ export default {
       items: [],
       snackbar: false,
       feedbackMessage: null,
-      eventsCounter: 0,
-      eventLimit: 0,
       lazy: true
     }
   },
@@ -128,10 +110,10 @@ export default {
     }
   },
   methods: {
-    countLoadingEvents () {
-      this.eventsCounter += 1
-      if (this.eventsCounter === this.eventLimit) {
-        this.loading = false
+    replaceReloadedItem (item) {
+      const index = this.items.findIndex(obj => obj.id === item.id)
+      if (index !== -1) {
+        this.$set(this.items, index, item)
       }
     },
     async scan () {
