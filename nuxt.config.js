@@ -6,6 +6,7 @@ export default {
   ** See https://nuxtjs.org/api/configuration-target
   */
   target: 'static',
+  ssr: false,
   /*
   ** Headers of the page
   ** See https://nuxtjs.org/api/configuration-head
@@ -47,7 +48,8 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/i18n',
     '@nuxtjs/moment',
-    '@nuxtjs/auth'
+    '@nuxtjs/auth',
+    '@nuxtjs/pwa'
   ],
   /*
   ** Nuxt.js modules
@@ -67,7 +69,7 @@ export default {
       name: 'HouseholdOrganizer 2.0',
       start_url: '/',
       display: 'standalone',
-      theme_color: '#53abcb'
+      theme_color: '#7ca5c9'
     }
   },
   /*
