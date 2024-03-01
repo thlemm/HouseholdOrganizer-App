@@ -24,7 +24,7 @@
         <item-card
           :item="item"
           :action-toggle-interest="true"
-          :action-update-location="true"
+          :action-update-location="isFamily"
           :filter-interests="false"
           @reload-item="reloadItem($event)"
         />
@@ -67,6 +67,19 @@ export default {
       pageLength: 10,
       pageNumber: 1,
       maxPageNumber: 1
+    }
+  },
+  computed: {
+    isLoggedIn () {
+      return !!this.$auth.loggedIn
+    },
+    isFamily () {
+      if (this.isLoggedIn) {
+        if (this.$auth.user.roles.includes('ROLE_FAMILY')) {
+          return true
+        }
+      }
+      return false
     }
   },
   methods: {

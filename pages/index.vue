@@ -22,7 +22,7 @@
           <item-of-the-day-card v-if="isLoggedIn" />
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="isFamily">
         <v-col>
           <v-btn
             class="mb-9 mr-1"
@@ -58,6 +58,14 @@ export default {
   computed: {
     isLoggedIn () {
       return !!this.$auth.loggedIn
+    },
+    isFamily () {
+      if (this.isLoggedIn) {
+        if (this.$auth.user.roles.includes('ROLE_FAMILY')) {
+          return true
+        }
+      }
+      return false
     }
   },
 
