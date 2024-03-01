@@ -118,6 +118,34 @@
         outlined
         dense
         label="Kiste/Regal"
+        @input="checkLocation()"
+      />
+
+      <v-select
+        v-model="input.currentRoom"
+        :rules="[rules.required]"
+        :items="rooms"
+        item-value="id"
+        outlined
+        dense
+        label="Lagerort"
+        :disabled="currentRoomSelectDisabled"
+      >
+        <template #item="data">
+          {{ $t(data.item?.name) }}
+        </template>
+        <template #selection="data">
+          {{ $t(data.item?.name) }}
+        </template>
+      </v-select>
+
+      <v-checkbox
+        v-model="input.box"
+        class="mt-0 pt-0"
+        outlined
+        dense
+        label="In einer Kiste"
+        :disabled="currentRoomSelectDisabled"
       />
 
       <span>Bild:</span>
@@ -177,11 +205,13 @@ export default {
         { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
         { id: 2, name: 'TYPE_FURNITURE', label: this.$t('TYPE_FURNITURE') },
         { id: 3, name: 'TYPE_UTILITY_ITEM', label: this.$t('TYPE_UTILITY_ITEM') },
-        { id: 4, name: 'ROOM_TECHNICAL_DEVICE', label: this.$t('ROOM_TECHNICAL_DEVICE') },
-        { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
+        { id: 4, name: 'TYPE_TECHNICAL_DEVICE', label: this.$t('TYPE_TECHNICAL_DEVICE') },
+        { id: 5, name: 'TYPE_FURNISHING', label: this.$t('TYPE_FURNISHING') }
       ],
       input: {
         originalRoom: null,
+        currentRoom: null,
+        box: false,
         type: null,
         tags: [],
         location: undefined,
@@ -195,7 +225,8 @@ export default {
       dialog: {
         upload: false,
         nuxt: false
-      }
+      },
+      currentRoomSelectDisabled: true
     }
   },
 
@@ -204,6 +235,7 @@ export default {
       handler () {
         if (
           this.input.originalRoom !== null &&
+          this.input.currentRoom !== null &&
           this.input.type !== null &&
           this.input.location !== null &&
           this.input.tags.length > 0 &&
@@ -234,6 +266,38 @@ export default {
   },
 
   methods: {
+    async checkLocation () {
+      if (this.input.location) {
+        const getLocationResponse = await this.getLocationRequest()
+        if (getLocationResponse) {
+          this.input.currentRoom = getLocationResponse.room
+          this.input.box = getLocationResponse.box
+          this.currentRoomSelectDisabled = true
+        } else {
+          this.input.currentRoom = null
+          this.input.box = null
+          this.currentRoomSelectDisabled = false
+        }
+      }
+    },
+    getLocationRequest () {
+      const url = '/api/v2/location/' + this.input.location
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.get(url, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
     async getData () {
       const getRoomsResponse = await this.getRoomsRequest()
       if (getRoomsResponse) {
@@ -265,6 +329,8 @@ export default {
     newQuestion () {
       this.input = {
         originalRoom: null,
+        currentRoom: null,
+        box: false,
         type: null,
         tags: [],
         location: undefined,
@@ -274,6 +340,7 @@ export default {
       this.thumbnail = undefined
       this.itemId = null
       this.mark = null
+      this.currentRoomSelectDisabled = true
       this.dialog.next = false
     },
     createFormData () {

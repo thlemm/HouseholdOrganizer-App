@@ -29,27 +29,58 @@
             outlined
             dense
             clearable
+            :disabled="isInputMarkDisabled"
             label="Teilenummer"
+            @input="onInputMark($event)"
           />
 
           <v-select
             v-model="input.type"
             :items="types"
-            item-text="label"
             item-value="id"
             clearable
             outlined
             dense
+            :disabled="isInputTypeDisabled"
             label="Typ"
-          />
+            @input="onOtherInput()"
+          >
+            <template #item="data">
+              {{ $t(data.item.name) }}
+            </template>
+            <template #selection="data">
+              {{ $t(data.item.name) }}
+            </template>
+          </v-select>
+
+          <v-select
+            v-model="input.status"
+            :items="status"
+            item-value="id"
+            clearable
+            outlined
+            dense
+            :disabled="isInputStatusDisabled"
+            label="Status"
+            @input="onOtherInput()"
+          >
+            <template #item="data">
+              {{ $t(data.item.name) }}
+            </template>
+            <template #selection="data">
+              {{ $t(data.item.name) }}
+            </template>
+          </v-select>
 
           <input-tags
             v-model="input.tags"
+            :disabled="isInputTagsDisabled"
+            @input="onOtherInput()"
           />
         </v-col>
       </v-row>
       <v-row>
-        <v-col align="end">
+        <v-col class="text-center">
           <v-btn
             :disabled="loading"
             color="secondary"
@@ -62,40 +93,23 @@
     </v-form>
     <v-divider class="mt-3 mb-0" />
     <span class="mt-0 pt-0 mb-5 grey--text">{{ items.length }} {{ items.length > 1 ? 'Ergebnisse' : 'Ergebnis' }} gefunden:</span>
-    <loading-animation
-      v-if="loading"
-      color="secondary"
+    <info-card-loader
+      :lazy="lazy"
+      :items="items"
+      :loading="loading"
+      @loaded-items="loading = false"
+      @reloaded-item="replaceReloadedItem($event)"
     />
-    <div v-if="lazy">
-      <v-lazy
-        v-for="(item, i) in items"
-        :key="i"
-        :options="{
-          threshold: .5
-        }"
-        class="fill-height"
-        transition="fade-transition"
-        @input="countLoadingEvents()"
-      >
-        <item-card
-          :item="item"
-          :action-toggle-interest="true"
-          :filter-interests="false"
-          @reload-data="search"
-        />
-      </v-lazy>
-    </div>
   </v-container>
 </template>
 
 <script>
 import { mdiMagnify } from '@mdi/js'
 import InputTags from '~/components/input/input-tags'
-import LoadingAnimation from '~/components/feedback/loading-animation'
 import InfoSnackbar from '~/components/feedback/info-snackbar'
 export default {
   name: 'Search',
-  components: { InfoSnackbar, LoadingAnimation, InputTags },
+  components: { InfoSnackbar, InputTags },
   layout: 'default',
 
   data () {
@@ -104,24 +118,22 @@ export default {
       alert: false,
       message: '',
       loading: false,
-      types: [
-        { id: 1, name: 'TYPE_DECORATION', label: this.$t('TYPE_DECORATION') },
-        { id: 2, name: 'TYPE_FURNITURE', label: this.$t('TYPE_FURNITURE') },
-        { id: 3, name: 'TYPE_UTILITY_ITEM', label: this.$t('TYPE_UTILITY_ITEM') },
-        { id: 4, name: 'ROOM_TECHNICAL_DEVICE', label: this.$t('ROOM_TECHNICAL_DEVICE') },
-        { id: 5, name: 'ROOM_FURNISHING', label: this.$t('ROOM_FURNISHING') }
-      ],
+      types: [],
       input: {
         mark: null,
         type: null,
-        tags: []
+        tags: [],
+        status: null
       },
       items: [],
+      status: [],
       snackbar: false,
       feedbackMessage: null,
-      eventsCounter: 0,
-      eventLimit: 0,
-      lazy: true
+      lazy: true,
+      isInputMarkDisabled: false,
+      isInputTypeDisabled: false,
+      isInputStatusDisabled: false,
+      isInputTagsDisabled: false
     }
   },
 
@@ -130,13 +142,22 @@ export default {
       this.$nuxt.$router.replace('/login?target=search')
     }
   },
+  mounted () {
+    this.getData()
+  },
 
   methods: {
-    countLoadingEvents () {
-      this.eventsCounter += 1
-      if (this.eventsCounter === this.eventLimit) {
-        this.loading = false
+    replaceReloadedItem (item) {
+      const index = this.items.findIndex(obj => obj.id === item.id)
+      if (index !== -1) {
+        this.$set(this.items, index, item)
       }
+    },
+    onInputMark (input) {
+      this.isInputTypeDisabled = this.isInputStatusDisabled = this.isInputTagsDisabled = !(input === '' || input === null)
+    },
+    onOtherInput () {
+      this.isInputMarkDisabled = !(this.input.type === null && this.input.status === null && this.input.tags.length === 0)
     },
     handleError (feedbackMessage) {
       this.snackbar = true
@@ -158,15 +179,59 @@ export default {
         }
       }
     },
+    async getData () {
+      const getItemTypesResponse = await this.getItemTypesRequest()
+      if (getItemTypesResponse) {
+        this.types = getItemTypesResponse
+      }
+      const getTransactionStatesResponse = await this.getTransactionStatesRequest()
+      if (getTransactionStatesResponse) {
+        this.status = getTransactionStatesResponse
+      }
+    },
+    getItemTypesRequest () {
+      const url = '/api/v2/itemTypes'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.get(url, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
+    getTransactionStatesRequest () {
+      const url = '/api/v2/transactions/states'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.get(url, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
     async search () {
       this.items = []
       this.lazy = false
-      this.eventsCounter = 0
       this.loading = true
       const searchResponse = await this.searchRequest()
       if (searchResponse) {
         this.items = searchResponse
-        this.eventLimit = this.items.length
         this.lazy = true
       } else {
         this.items = []
@@ -175,7 +240,7 @@ export default {
     },
     searchRequest () {
       const url = '/api/v2/items/search'
-      const payload = this.createPayload()
+      const payload = this.input
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
       const _this = this
       return new Promise(function (resolve) {

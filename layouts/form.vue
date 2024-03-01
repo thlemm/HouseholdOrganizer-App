@@ -70,7 +70,7 @@
       color="primary"
       app
     >
-      <span class="white--text">HouseholdOrganizer</span>
+      <span class="white--text flex text-center">HouseholdOrganizer</span>
     </v-footer>
   </v-app>
 </template>

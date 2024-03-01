@@ -1,6 +1,5 @@
 # HouseholdOrganizer - App
 [![made-with-spring](https://img.shields.io/badge/Made%20with-Nuxt.js-7CA5C9)](https://nuxt.com/)
-[![rest](https://img.shields.io/badge/API-REST-7CA5C9)](https://en.wikipedia.org/wiki/REST)
 
 <a href="./static/icon.png">
     <img alt="OpenGeoResearch Logo" height="200" src="./static/icon.png"/>

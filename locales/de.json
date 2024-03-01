@@ -27,6 +27,20 @@
   "TYPE_DECORATION": "Dekoration",
   "TYPE_FURNITURE": "Möbel",
   "TYPE_UTILITY_ITEM": "Gebrauchsgegenstand",
-  "ROOM_TECHNICAL_DEVICE": "Technisches Gerät",
-  "ROOM_FURNISHING": "Einrichtungsgegenstand"
+  "TYPE_TECHNICAL_DEVICE": "Technisches Gerät",
+  "TYPE_FURNISHING": "Einrichtungsgegenstand",
+
+  "ROLE_USER": "Benutzer",
+  "ROLE_ADMIN": "Admin",
+  "ROLE_FAMILY": "Familie",
+  "ROLE_FRIEND": "Freunde",
+
+  "TRANSACTION_STATUS_AVAILABLE": "Verfügbar",
+  "TRANSACTION_STATUS_SOLD": "Verkauft",
+  "TRANSACTION_STATUS_TAKEN": "Mitgenommen",
+  "TRANSACTION_STATUS_DISPOSED": "Entsorgt",
+  "TRANSACTION_STATUS_GIVEN_AWAY": "Verschenkt",
+  "TRANSACTION_STATUS_NOT_ASSESSED": "Nicht Bewertet",
+  "TRANSACTION_STATUS_RESERVED": "Reserviert"
+
 }

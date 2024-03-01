@@ -17,17 +17,42 @@
         dark
         class="mb-3 pt-0"
         elevation="3"
-        :icon="mdiHeart"
-        color="primary"
+        :icon="mdiHeartSearch"
+        color="error"
       >
-        Meine Sachen {{ items?.length > 0 ? '(' + (items?.length) + ')' : '' }}
+        Alle Interessen {{ items?.length > 0 ? '(' + (items?.length) + ')' : '' }}
       </v-banner>
-      <info-card
-        v-if="items.length === 0 && loading === false"
-        title="Nichts gefunden"
-        subtitle="Hier werden die Sachen angezeigt, die mit deinem Account verknüpft sind."
-      />
+      <v-form class="mt-3">
+        <v-row>
+          <v-col align="center">
+            <v-select
+              v-model="input.user"
+              :items="users"
+              item-value="id"
+              item-text="username"
+              clearable
+              outlined
+              dense
+              return-object
+              label="Benutzer"
+            />
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col class="text-center">
+            <v-btn
+              :disabled="loading"
+              color="secondary"
+              @click="getItems"
+            >
+              Anzeigen
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-form>
+      <v-divider class="mt-3 mb-0" />
       <info-card-loader
+        class="mt-3"
         :lazy="lazy"
         :items="items"
         :loading="loading"
@@ -39,17 +64,17 @@
 </template>
 
 <script>
-import { mdiHeart } from '@mdi/js'
+import { mdiHeartSearch } from '@mdi/js'
 import InfoSnackbar from '~/components/feedback/info-snackbar'
 
 export default {
-  name: 'MyStuff',
+  name: 'Interests',
   components: { InfoSnackbar },
   layout: 'default',
 
   data () {
     return {
-      mdiHeart,
+      mdiHeartSearch,
       show: null,
       items: [],
       isActive: false,
@@ -57,14 +82,21 @@ export default {
       snackbar: false,
       feedbackMessage: null,
       loading: false,
-      lazy: true
+      lazy: true,
+      users: [],
+      input: {
+        user: null
+      }
     }
   },
   beforeMount () {
     if (!this.$auth.loggedIn) {
-      this.$nuxt.$router.replace('/login?target=myitems')
+      this.$nuxt.$router.replace('/login?target=interests')
     }
-    this.getData()
+    if (!this.$auth.user.roles.includes('ROLE_ADMIN')) {
+      this.$nuxt.$router.replace('/')
+    }
+    this.getUsers()
   },
   methods: {
     replaceReloadedItem (item) {
@@ -78,7 +110,31 @@ export default {
       this.feedbackMessage = feedbackMessage
       this.loading = false
     },
-    async getData () {
+    async getUsers () {
+      const getUsersResponse = await this.getUsersRequest()
+      if (getUsersResponse) {
+        this.users = getUsersResponse
+      }
+    },
+    getUsersRequest () {
+      const url = '/api/v2/auth/users'
+      const config = { headers: { Authorization: this.$auth.getToken('local') } }
+      const _this = this
+      return new Promise(function (resolve) {
+        _this.$axios.get(url, config)
+          .then((response) => {
+            if (response.status === 200) {
+              resolve(response.data)
+            } else {
+              resolve(false)
+            }
+          })
+          .catch(() => {
+            resolve(false)
+          })
+      })
+    },
+    async getItems () {
       if (this.$auth.loggedIn) {
         this.lazy = false
         this.eventsCounter = 0
@@ -101,7 +157,7 @@ export default {
       }
     },
     getUserItemsRequest () {
-      const url = '/api/v2/items/user'
+      const url = '/api/v2/user/' + this.input.user.id + '/items'
       const config = { headers: { Authorization: this.$auth.getToken('local') } }
       const _this = this
       return new Promise(function (resolve) {

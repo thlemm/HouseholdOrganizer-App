@@ -16,6 +16,7 @@
       class="mr-1"
       color="neutral"
       rounded
+      :disabled="disabled"
       @click="onClickButton()"
     >
       <v-icon color="warning">
@@ -47,6 +48,11 @@ export default {
     itemId: {
       type: Number,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {

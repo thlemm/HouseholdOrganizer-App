@@ -9,7 +9,17 @@
     >
       <v-row>
         <v-col>
-          <home-card />
+          <app-name-card />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <welcome-card />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <item-of-the-day-card v-if="isLoggedIn" />
         </v-col>
       </v-row>
       <v-row>
@@ -34,10 +44,20 @@
 
 <script>
 
+import AppNameCard from '~/components/home/app-name-card'
+import WelcomeCard from '~/components/home/welcome-card'
+import ItemOfTheDayCard from '~/components/home/item-of-the-day-card'
 export default {
+  components: { ItemOfTheDayCard, WelcomeCard, AppNameCard },
   data () {
     return {
 
+    }
+  },
+
+  computed: {
+    isLoggedIn () {
+      return !!this.$auth.loggedIn
     }
   },
 

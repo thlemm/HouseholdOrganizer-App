@@ -19,7 +19,7 @@
       />
       <v-form>
         <v-row>
-          <v-col align="center">
+          <v-col>
             <v-select
               v-model="input.location"
               :items="locations"
@@ -38,7 +38,7 @@
             </v-select>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row class="text-center">
           <v-col>
             <v-btn
               :disabled="loading"
@@ -55,6 +55,7 @@
       class="ml-1"
       color="neutral"
       rounded
+      :disabled="disabled"
       @click="dialog = true"
     >
       <v-icon color="action">
@@ -74,6 +75,11 @@ export default {
     itemId: {
       type: Number,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {

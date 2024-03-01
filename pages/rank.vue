@@ -65,6 +65,9 @@ export default {
     if (!this.$auth.loggedIn) {
       this.$nuxt.$router.replace('/login?target=rank')
     }
+    if (!this.$auth.user.roles.includes('ROLE_FAMILY')) {
+      this.$nuxt.$router.replace('/')
+    }
     this.getNextNotAssessedItem()
   },
   methods: {

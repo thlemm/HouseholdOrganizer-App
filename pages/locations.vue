@@ -13,7 +13,7 @@
       class="mb-2"
       elevation="3"
       :icon="mdiArchiveEdit"
-      color="primary"
+      color="error"
     >
       Lagerort bearbeiten
     </v-banner>
@@ -59,8 +59,8 @@
           </v-select>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col>
+      <v-row no-gutters>
+        <v-col class="text-center">
           <v-btn
             :disabled="loading"
             color="secondary"
