@@ -41,6 +41,18 @@
         />
       </v-col>
     </v-row>
+    <v-row>
+      <v-col class="text-center">
+        <v-btn
+          v-if="code !== ''"
+          class="mt-0"
+          :disabled="loading"
+          @click="copyToClipboard"
+        >
+          Kopieren
+        </v-btn>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -95,6 +107,11 @@ export default {
             resolve(false)
           })
       })
+    },
+    copyToClipboard () {
+      navigator.clipboard.writeText(this.code)
+      this.feedbackMessage = 'Code kopiert!'
+      this.snackbar = true
     }
   }
 }
