@@ -145,7 +145,7 @@ export default {
   },
   publicRuntimeConfig: {
     axios: {
-      baseURL: process.env.BASE_URL || 'http://localhost:8081'
+      baseURL: process.env.BASE_URL || 'https://household-organizer-api.thlemm.de'
     },
     imgBaseUrl: process.env.IMG_BASE_URL || '/2023-11-13_images_backup/'
   }

@@ -253,6 +253,9 @@ export default {
     if (!this.$auth.loggedIn) {
       this.$nuxt.$router.replace('/login?target=add')
     }
+    if (!this.$auth.user.roles.includes('ROLE_FAMILY')) {
+      this.$nuxt.$router.replace('/')
+    }
     this.getData()
   },
 

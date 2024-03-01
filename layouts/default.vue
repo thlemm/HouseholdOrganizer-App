@@ -231,7 +231,7 @@
         </v-list-item>
 
         <v-list-item
-          v-if="isLoggedIn"
+          v-if="isAdmin"
           link
           to="/signup"
           nuxt
@@ -262,7 +262,7 @@
         <v-divider inset />
 
         <v-list-item
-          v-if="isLoggedIn"
+          v-if="isFamily"
           link
           to="/add"
           nuxt

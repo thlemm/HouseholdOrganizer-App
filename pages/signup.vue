@@ -164,6 +164,9 @@ export default {
     if (!this.$auth.loggedIn) {
       this.$nuxt.$router.replace('/login?target=signup')
     }
+    if (!this.$auth.user.roles.includes('ROLE_ADMIN')) {
+      this.$nuxt.$router.replace('/')
+    }
   },
   methods: {
     timeout () {
